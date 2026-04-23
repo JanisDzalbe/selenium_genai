@@ -36,3 +36,10 @@ Use custom utility function to initialize WebDriver instances based on OS.
 
 ## Copilot
 [Quickstart for GitHub Copilot](https://docs.github.com/en/copilot/get-started/quickstart)
+
+## General Guides
+From Selenium project:
+- [Setting up project using IntelliJ IDEA](https://github.com/JanisDzalbe/selenium_java/wiki/Project-Setup)
+- [WebDriver Setup](https://github.com/JanisDzalbe/selenium_java/wiki/WebDriver-Setup)
+- [Create new branch in IntelliJ IDEA](https://github.com/JanisDzalbe/selenium_java/wiki/Create-new-branch)
+- [Committing code and pushing to remote with IntelliJ IDEA](https://github.com/JanisDzalbe/selenium_java/wiki/Committing-code-and-pushing-to-remote)
