@@ -3,55 +3,99 @@ package selenium.tasks;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.*;
+import org.openqa.selenium.support.ui.Select;
+import selenium.utility.WebDriverUtil;
+
+import static org.junit.jupiter.api.Assertions.*;
+
+import java.util.List;
 
 public class Task2 {
     WebDriver driver;
 
     @BeforeEach
     public void openPage() {
-        // TODO
-        //  initialize the driver
-        //  open page https://janisdzalbe.github.io/example-site/tasks/fitness_challenge
+        driver = WebDriverUtil.getChromeDriver();
+        driver.get("https://janisdzalbe.github.io/example-site/tasks/fitness_challenge");
     }
 
     @AfterEach
     public void closeBrowser() {
-        // TODO
-        //  close the browser
+        if (driver != null) {
+            driver.quit();
+        }
     }
 
     // FEATURE 1: INITIAL PAGE LOAD
 
     @Test
     public void firstTimePageLoad() throws Exception {
-        // TODO:
-        //  verify page displays title "Fitness Challenge"
-        //  verify 10 participants are displayed in the list
-        //  verify default participants include:
-        //   Mike Kid, Jill Watson, Jane Doe, John Smith, Sarah Johnson, Carlos Garcia, Emily Chen, David Brown, Maria Rodriguez, Alex Taylor
-        //  verify all participants display their initial step counts
-        //   Mike Kid: 8,500,
-        //   Jill Watson: 12,000,
-        //   Jane Doe: 6,500,
-        //   John Smith: 15,000,
-        //   Sarah Johnson: 9,800,
-        //   Carlos Garcia: 11,200,
-        //   Emily Chen: 7,300,
-        //   David Brown: 13,500,
-        //   Maria Rodriguez: 10,500,
-        //   Alex Taylor: 8,900
-        //  verify "Add Steps" and "Reset List" buttons are visible (appear twice - top and bottom)
+        // verify page displays title "Fitness Challenge"
+        String pageTitle = driver.getTitle();
+        assertEquals("Fitness Challenge", pageTitle, "Page title should be 'Fitness Challenge'");
+
+        // verify 10 participants are displayed in the list
+        List<WebElement> participants = driver.findElements(By.cssSelector("#participantsList li"));
+        assertEquals(10, participants.size(), "Should display 10 participants");
+
+        // verify default participants and their step counts
+        String[][] expectedParticipants = {
+                {"John Smith", "15,000"},
+                {"David Brown", "13,500"},
+                {"Jill Watson", "12,000"},
+                {"Carlos Garcia", "11,200"},
+                {"Maria Rodriguez", "10,500"},
+                {"Sarah Johnson", "9,800"},
+                {"Alex Taylor", "8,900"},
+                {"Mike Kid", "8,500"},
+                {"Emily Chen", "7,300"},
+                {"Jane Doe", "6,500"}
+        };
+
+        for (int i = 0; i < expectedParticipants.length; i++) {
+            WebElement participantElement = participants.get(i);
+            String name = participantElement.findElement(By.cssSelector(".participant-name")).getText();
+            String steps = participantElement.findElement(By.cssSelector(".participant-steps")).getText();
+            
+            assertEquals(expectedParticipants[i][0], name, "Participant " + (i + 1) + " name mismatch");
+            assertEquals(expectedParticipants[i][1] + " steps", steps, "Participant " + (i + 1) + " step count mismatch");
+        }
+
+        // verify "Add Steps" and "Reset List" buttons are visible (appear twice - top and bottom)
+        List<WebElement> addStepsButtons = driver.findElements(By.id("addStepsBtn"));
+        assertEquals(2, addStepsButtons.size(), "Should have 2 'Add Steps' buttons (top and bottom)");
+        
+        List<WebElement> resetButtons = driver.findElements(By.id("resetBtn"));
+        assertEquals(2, resetButtons.size(), "Should have 2 'Reset List' buttons (top and bottom)");
+
+        for (WebElement button : addStepsButtons) {
+            assertTrue(button.isDisplayed(), "'Add Steps' button should be visible");
+        }
+
+        for (WebElement button : resetButtons) {
+            assertTrue(button.isDisplayed(), "'Reset List' button should be visible");
+        }
     }
 
     // FEATURE 2: PARTICIPANT DISPLAY AND RANKING
 
     @Test
     public void rankingOrder() throws Exception {
-        // TODO:
-        //  review the order of participants in the list
-        //  verify participants are displayed in descending order by step count
-        //  verify each participant's step count is greater than or equal to the participant below them
+        // review the order of participants in the list
+        List<WebElement> participants = driver.findElements(By.cssSelector("#participantsList li"));
+        
+        // verify participants are displayed in descending order by step count
+        int previousSteps = Integer.MAX_VALUE;
+        
+        for (WebElement participant : participants) {
+            String stepsText = participant.findElement(By.cssSelector(".participant-steps")).getText();
+            // Extract number from "X,XXX steps" format
+            int steps = Integer.parseInt(stepsText.replace(",", "").replace(" steps", ""));
+            
+            assertTrue(steps <= previousSteps, "Participants should be in descending order by step count");
+            previousSteps = steps;
+        }
     }
 
     @Test
@@ -62,6 +106,7 @@ public class Task2 {
         //  verify 2nd place participant displays a silver trophy icon
         //  verify 3rd place participant displays a bronze (#cd7f32) trophy icon
         //  verify participants ranked 4th and below have no trophy icons
+
     }
 
     // FEATURE 3: ADD STEPS MODAL
