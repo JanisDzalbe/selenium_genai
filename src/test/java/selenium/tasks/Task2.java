@@ -4,21 +4,24 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.openqa.selenium.WebDriver;
+import selenium.utility.WebDriverUtil;
 
 public class Task2 {
     WebDriver driver;
 
     @BeforeEach
     public void openPage() {
-        // TODO
-        //  initialize the driver
-        //  open page https://janisdzalbe.github.io/example-site/tasks/fitness_challenge
+        // Initialize EdgeDriver using cross-platform utility
+        driver = WebDriverUtil.createEdgeDriver();
+        // Navigate to fitness challenge page
+        driver.get("https://janisdzalbe.github.io/example-site/tasks/fitness_challenge");
     }
 
     @AfterEach
     public void closeBrowser() {
-        // TODO
-        //  close the browser
+        if (driver != null) {
+            driver.quit();
+        }
     }
 
     // FEATURE 1: INITIAL PAGE LOAD

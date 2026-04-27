@@ -6,6 +6,7 @@ import org.junit.jupiter.api.Test;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
+import selenium.utility.WebDriverUtil;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -14,15 +15,17 @@ public class Task1 {
 
     @BeforeEach
     public void openPage() {
-        // TODO
-        //  initialize the driver
-        //  open page https://janisdzalbe.github.io/example-site/tasks/provide_feedback
+        // Initialize EdgeDriver using cross-platform utility
+        driver = WebDriverUtil.createEdgeDriver();
+        // Navigate to feedback page
+        driver.get("https://janisdzalbe.github.io/example-site/tasks/provide_feedback");
     }
 
     @AfterEach
     public void closeBrowser() {
-        // TODO
-        //  close the browser
+        if (driver != null) {
+            driver.quit();
+        }
     }
 
     @Test
