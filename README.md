@@ -29,10 +29,10 @@ Use custom utility function to initialize WebDriver instances based on OS.
 ## Project tasks:
 - [x] Set up Java Selenium project with Maven (pom.xml)
 - [x] Implement cross-platform WebDriver initialization in utility class
-- [ ] Download and manage WebDriver executables in `lib/` directory
-- [ ] Implement sample test cases in `src/test/java/selenium/tasks` package using JUnit 5
-- [ ] Implement features in `src/test/resources/features/` directory using Cucumber
-- [ ] Update tests to use Page Object Model pattern in `src/test/java/selenium/pages/` package
+- [x] Download and manage WebDriver executables in `lib/` directory (using WebDriverManager for automatic management)
+- [x] Implement sample test cases in `src/test/java/selenium/tasks` package using JUnit 5
+- [x] Implement features in `src/test/resources/features/` directory using Cucumber
+- [x] Update tests to use Page Object Model pattern in `src/test/java/selenium/pages/` package
 
 ## Copilot
 [Quickstart for GitHub Copilot](https://docs.github.com/en/copilot/get-started/quickstart)
