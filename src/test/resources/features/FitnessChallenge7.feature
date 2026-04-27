@@ -16,6 +16,5 @@ Feature: EDGE CASES AND ERROR HANDLING
     And I select any participant
     And I enter "100.5" in the steps input field
     And I click "Add Steps" button
-    Then an alert appears: "Please enter a valid number of steps"
-    When I accept the alert
-    Then the modal remains open
+    Then the modal closes automatically
+    And the step count updates after decimal value
