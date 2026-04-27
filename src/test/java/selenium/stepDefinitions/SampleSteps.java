@@ -1,5 +1,6 @@
 package selenium.stepDefinitions;
 
+import io.cucumber.java.PendingException;
 import io.cucumber.java.en.*;
 import org.junit.jupiter.api.Assertions;
 import org.openqa.selenium.*;
@@ -170,5 +171,191 @@ public class SampleSteps {
                 color.contains(expectedColor),
                 "Expected " + expectedColor + " but got " + color
         );
+    }
+
+    // ---------- WHEN ----------
+    @When("I click the {string} button at the top of the page")
+    public void clickTopButton(String buttonText) {
+
+        // на странице 2 одинаковые кнопки → берем первую (top)
+        List<WebElement> buttons = driver.findElements(By.id("addStepsBtn"));
+
+        WebElement topButton = buttons.get(0);
+        topButton.click();
+    }
+
+    // ---------- THEN ----------
+    @Then("a modal window appears with title {string}")
+    public void checkModalTitle(String expectedTitle) {
+
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(5));
+
+        WebElement modal = wait.until(
+                ExpectedConditions.visibilityOfElementLocated(By.id("addStepsModal"))
+        );
+
+        String title = modal.findElement(By.tagName("h3")).getText();
+
+        Assertions.assertEquals(expectedTitle, title);
+    }
+
+    @Then("the modal contains a participant dropdown")
+    public void checkDropdown() {
+        WebElement dropdown = driver.findElement(By.id("participant_select"));
+        Assertions.assertTrue(dropdown.isDisplayed());
+    }
+
+    @Then("the modal contains a number input field")
+    public void checkNumberInput() {
+        WebElement input = driver.findElement(By.id("steps_input"));
+        Assertions.assertTrue(input.isDisplayed());
+    }
+
+    @Then("the modal contains {string} submit button")
+    public void checkSubmitButton(String text) {
+        WebElement button = driver.findElement(By.id("modal_add_steps_button"));
+        Assertions.assertTrue(button.isDisplayed());
+        Assertions.assertEquals(text, button.getText());
+    }
+
+    @Then("the modal has a close button \\(×) in the top-right corner")
+    public void checkCloseButton() {
+
+        WebElement closeBtn = driver.findElement(By.cssSelector(".w3-closebtn"));
+
+        Assertions.assertTrue(closeBtn.isDisplayed());
+        Assertions.assertEquals("×", closeBtn.getText().trim());
+    }
+
+    @Then("the dropdown is prepopulated with all 10 participants")
+    public void checkDropdownOptions() {
+
+        Select select = new Select(driver.findElement(By.id("participant_select")));
+
+        List<WebElement> options = select.getOptions();
+
+        // 1 default + 10 participants
+        Assertions.assertEquals(11, options.size());
+    }
+
+    @Then("the default dropdown text shows {string}")
+    public void checkDefaultDropdown(String expectedText) {
+
+        Select select = new Select(driver.findElement(By.id("participant_select")));
+
+        WebElement selected = select.getFirstSelectedOption();
+
+        Assertions.assertEquals(expectedText, selected.getText());
+    }
+
+    @When("I scroll to the bottom of the page")
+    public void scrollToBottom() {
+        JavascriptExecutor js = (JavascriptExecutor) driver;
+        js.executeScript("window.scrollTo(0, document.body.scrollHeight);");
+    }
+
+    @When("I click the {string} button at the bottom")
+    public void clickBottomButton(String buttonText) {
+
+        List<WebElement> buttons = driver.findElements(By.id("addStepsBtn"));
+
+        // на странице 2 кнопки → берем последнюю (bottom)
+        WebElement bottomButton = buttons.get(buttons.size() - 1);
+
+        bottomButton.click();
+    }
+
+    @Then("all modal elements are present")
+    public void checkAllModalElements() {
+
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(5));
+
+        WebElement modal = wait.until(
+                ExpectedConditions.visibilityOfElementLocated(By.id("addStepsModal"))
+        );
+
+        // dropdown
+        Assertions.assertTrue(modal.findElement(By.id("participant_select")).isDisplayed());
+
+        // input
+        Assertions.assertTrue(modal.findElement(By.id("steps_input")).isDisplayed());
+
+        // submit button
+        WebElement submit = modal.findElement(By.id("modal_add_steps_button"));
+        Assertions.assertTrue(submit.isDisplayed());
+
+        // close button
+        WebElement close = modal.findElement(By.cssSelector(".w3-closebtn"));
+        Assertions.assertTrue(close.isDisplayed());
+    }
+
+    @Given("I have opened the {string} modal")
+    public void openModal(String modalName) {
+
+        if (modalName.equals("Add Steps")) {
+
+            WebElement button = driver.findElements(By.id("addStepsBtn")).get(0);
+            button.click();
+
+            new WebDriverWait(driver, Duration.ofSeconds(5))
+                    .until(ExpectedConditions.visibilityOfElementLocated(By.id("addStepsModal")));
+        }
+    }
+
+    @When("I click the × \\(close) button in the top-right corner")
+    public void clickCloseButton() {
+
+        WebElement closeBtn = driver.findElement(By.cssSelector("#addStepsModal .w3-closebtn"));
+        closeBtn.click();
+    }
+
+    @Then("the modal closes")
+    public void modalCloses() {
+
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(5));
+
+        boolean invisible = wait.until(
+                ExpectedConditions.invisibilityOfElementLocated(By.id("addStepsModal"))
+        );
+
+        Assertions.assertTrue(invisible);
+    }
+
+    @Then("I return to the main page view")
+    public void returnToMainPage() {
+
+        WebElement list = driver.findElement(By.id("participantsList"));
+        WebElement title = driver.findElement(By.tagName("h2"));
+
+        Assertions.assertTrue(list.isDisplayed());
+        Assertions.assertEquals("Fitness Challenge", title.getText());
+    }
+
+    @Then("no data is changed from initial state")
+    public void checkNoDataChanged() {
+
+        List<WebElement> participants = driver.findElements(By.cssSelector("#participantsList li"));
+
+        List<String> actual = participants.stream()
+                .map(el -> el.findElement(By.className("participant-name")).getText()
+                        + "|"
+                        + el.findElement(By.className("participant-steps")).getText()
+                )
+                .toList();
+
+        List<String> expected = List.of(
+                "John Smith|15,000 steps",
+                "David Brown|13,500 steps",
+                "Jill Watson|12,000 steps",
+                "Carlos Garcia|11,200 steps",
+                "Maria Rodriguez|10,500 steps",
+                "Sarah Johnson|9,800 steps",
+                "Alex Taylor|8,900 steps",
+                "Mike Kid|8,500 steps",
+                "Emily Chen|7,300 steps",
+                "Jane Doe|6,500 steps"
+        );
+
+        Assertions.assertEquals(expected, actual);
     }
 }
