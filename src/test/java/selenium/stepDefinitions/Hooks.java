@@ -16,6 +16,6 @@ public class Hooks {
 
     @After
     public void closeBrowser(Scenario scenario) {
-        DriverFactory.quitDriver();
+        driver.quit();
     }
 }
