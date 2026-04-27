@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Check Feedback Empty</title>
+    <link rel="stylesheet" href="feedback-style.css">
+    <script defer src="feedback-flow.js"></script>
+</head>
+<body onload="fillEmptySummary()">
+    <div class="topbar">
+        <a href="provide_feedback.html">Feedback form page</a>
+    </div>
+
+    <div class="w3-row">
+        <div class="w3-half">
+            <div class="w3-margin w3-card-4" id="fb_thx">
+                <div class="header-card">
+                    <h2>Is this the feedback you want to give us?</h2>
+                </div>
+                <div class="w3-container">
+                    <div class="summary-row">
+                        <p>Your name: <span id="name"></span></p>
+                    </div>
+                    <div class="summary-row">
+                        <p>Your age: <span id="age"></span></p>
+                    </div>
+                    <div class="summary-row">
+                        <p>Your language: <span id="language"></span></p>
+                    </div>
+                    <div class="summary-row">
+                        <p>Your genre: <span id="gender"></span></p>
+                    </div>
+                    <div class="summary-row">
+                        <p>Your option of us: <span id="option"></span></p>
+                    </div>
+                    <div class="summary-row">
+                        <p>Your comment: <span id="comment"></span></p>
+                    </div>
+                </div>
+                <div class="w3-btn-group">
+                    <button class="w3-btn w3-green w3-xlarge" onclick="goToThankYouPage()">Yes</button>
+                    <button class="w3-btn w3-red w3-xlarge" onclick="goToProvideFeedback()">No</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

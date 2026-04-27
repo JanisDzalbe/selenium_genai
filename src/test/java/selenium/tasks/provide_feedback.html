@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Provide Feedback</title>
+    <link rel="stylesheet" href="feedback-style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <script defer src="feedback-flow.js"></script>
+</head>
+<body onload="restoreProvideFeedbackForm()">
+    <div class="topbar">
+        <a href="provide_feedback.html">Feedback form page</a>
+    </div>
+
+    <div class="w3-row">
+        <div class="w3-half">
+            <div class="w3-margin w3-light-grey w3-text-blue w3-container w3-card-4" id="fb_form">
+                <h1>Give us your feedback!</h1>
+                <form onsubmit="submitProvideFeedback(event)">
+                    <div class="w3-row w3-section">
+                        <div class="w3-col" style="width:50px">
+                            <i class="w3-xxlarge fa fa-user"></i>
+                        </div>
+                        <div class="w3-rest">
+                            <input class="w3-input w3-border" id="fb_name" type="text" placeholder="Name" name="name">
+                        </div>
+                    </div>
+
+                    <div class="w3-row w3-section">
+                        <div class="w3-col" style="width:50px">
+                            <i class="w3-xxlarge fa fa-id-badge"></i>
+                        </div>
+                        <div class="w3-rest">
+                            <input class="w3-input w3-border" id="fb_age" name="age" type="number" placeholder="Age">
+                        </div>
+                    </div>
+
+                    <div class="w3-row w3-section" id="lang_check">
+                        <h3>Select Language:</h3>
+                        <input class="w3-check" type="checkbox" name="language" value="English" id="lang_english">
+                        <label for="lang_english">English</label>
+
+                        <input class="w3-check" type="checkbox" name="language" value="French" id="lang_french">
+                        <label for="lang_french">French</label>
+
+                        <input class="w3-check" type="checkbox" name="language" value="Spanish" id="lang_spanish">
+                        <label for="lang_spanish">Spanish</label>
+
+                        <input class="w3-check" type="checkbox" name="language" value="Chinese" id="lang_chinese">
+                        <label for="lang_chinese">Chinese</label>
+                    </div>
+
+                    <div class="w3-row w3-section">
+                        <h3>Select Your Genre:</h3>
+                        <input class="w3-radio" type="radio" name="gender" value="male" id="gender_male">
+                        <label for="gender_male">Male</label>
+
+                        <input class="w3-radio" type="radio" name="gender" value="female" id="gender_female">
+                        <label for="gender_female">Female</label>
+
+                        <input class="w3-radio" type="radio" name="gender" value="" id="gender_unknown" disabled checked>
+                        <label for="gender_unknown">Don't know (Disabled)</label>
+                    </div>
+
+                    <div class="w3-row w3-section">
+                        <h3>How do you like us?</h3>
+                        <select class="w3-select" name="option" id="like_us">
+                            <option value="" selected>Choose your option</option>
+                            <option value="Good">Good</option>
+                            <option value="Ok, i guess">Ok, i guess</option>
+                            <option value="Bad">Bad</option>
+                            <option value="Why me?">Why me?</option>
+                        </select>
+                    </div>
+
+                    <div class="w3-row w3-section">
+                        <label class="w3-text-grey" for="fb_comment">Comment</label>
+                        <textarea name="comment" class="w3-input w3-border" id="fb_comment"></textarea>
+                    </div>
+
+                    <button type="submit" class="w3-btn-block w3-blue w3-section">Send</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
