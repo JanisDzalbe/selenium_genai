@@ -1,0 +1,154 @@
+<html><head>
+    <title></title>
+    <link rel="stylesheet" type="text/css" href="../css/w3.css">
+    <link rel="stylesheet" type="text/css" href="../css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+    <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+    <script src="../js/scripts.js"></script>
+    <script>
+        $(document).ready(function() {
+            $(".description").load(getFeedbackSummary());
+        });
+    </script>
+</head>
+<body>
+<div id="header">    <ul class="w3-navbar w3-black w3-large">
+    <li><a href="/example-site/">Home</a></li>
+    <li class="w3-dropdown-hover">
+        <a href="#">Page Examples  <i class="fa fa-caret-down"></i></a>
+        <div class="w3-dropdown-content w3-white w3-card-4" id="base_menu">
+            <a href="/example-site/examples/locators">Locators</a>
+            <a href="/example-site/examples/actions">Actions</a>
+            <a href="/example-site/examples/alerted_page">Alerted page</a>
+            <a href="/example-site/examples/alerts_popups">Alert and pop-ups</a>
+            <a href="/example-site/examples/styles">Styles</a>
+            <a href="/example-site/examples/sync">Synchronization</a>
+            <a href="/example-site/examples/po">Page with Links</a>
+            <a href="/example-site/examples/age">Age</a>
+            <a href="/example-site/examples/loading_color">Color Loading</a>
+            <a href="/example-site/examples/randomized_list">Randomized List</a>
+        </div>
+    </li>
+    <li class="w3-dropdown-hover">
+        <a href="#">Tasks  <i class="fa fa-caret-down"></i></a>
+        <div class="w3-dropdown-content w3-white w3-card-4" id="sync_menu">
+            <a href="/example-site/tasks/enter_a_number">Enter a number</a>
+            <a href="/example-site/tasks/locators_different">Different locators</a>
+            <a href="/example-site/tasks/list_of_people_with_jobs">People with jobs list</a>
+            <a href="/example-site/tasks/list_of_people">People list</a>
+            <a href="/example-site/tasks/list_of_people_random">People list (random order)</a>
+            <a href="/example-site/tasks/provide_feedback">Feedback form page</a>
+            <a href="/example-site/tasks/fitness_challenge">Fitness Challenge</a>
+        </div>
+    </li>
+</ul></div>
+<div class="w3-row">
+    <div class="w3-half">
+        <div class="" id="fb_thx">
+            <div class="w3-card-4">
+                <header class="w3-container w3-light-grey">
+                    <h2>Is this the feedback you want to give us?</h2>
+                </header>
+                <div class="w3-container">
+                    <div class="description">
+                        <p>Your name: <span id="name">Ieva Janušaitytė</span></p>
+                    </div>
+                    <div class="description">
+                        <p>Your age: <span id="age">23</span></p>
+                    </div>
+                    <div class="description">
+                        <p>Your language: <span id="language">English</span></p>
+                    </div>
+                    <div class="description">
+                        <p>Your genre: <span id="gender">male</span></p>
+                    </div>
+                    <div class="description">
+                        <p>Your option of us: <span id="option">Good</span></p>
+                    </div>
+                    <div class="description">
+                        <p>Your comment: <span id="comment">thanks</span></p>
+                    </div>
+                </div>
+                <div class="w3-btn-group">
+                    <button class="w3-btn w3-green w3-xlarge" onclick="openFeedback()" style="width:50%">Yes</button>
+                    <button class="w3-btn w3-red w3-xlarge" onclick="window.history.back();" style="width:50%">No</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+
+</body></html>
+
+
+
+<html><head>
+    <title></title>
+    <link rel="stylesheet" type="text/css" href="../css/w3.css">
+    <link rel="stylesheet" type="text/css" href="../css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+    <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+    <script src="../js/scripts.js"></script>
+    <script>
+        $(document).ready(function() {
+            $("#header").load("/example-site/menu.html");
+            $("#message").load(getFeedback());
+        });
+    </script>
+</head>
+<body>
+<div id="header">    <ul class="w3-navbar w3-black w3-large">
+    <li><a href="/example-site/">Home</a></li>
+    <li class="w3-dropdown-hover">
+        <a href="#">Page Examples  <i class="fa fa-caret-down"></i></a>
+        <div class="w3-dropdown-content w3-white w3-card-4" id="base_menu">
+            <a href="/example-site/examples/locators">Locators</a>
+            <a href="/example-site/examples/actions">Actions</a>
+            <a href="/example-site/examples/alerted_page">Alerted page</a>
+            <a href="/example-site/examples/alerts_popups">Alert and pop-ups</a>
+            <a href="/example-site/examples/styles">Styles</a>
+            <a href="/example-site/examples/sync">Synchronization</a>
+            <a href="/example-site/examples/po">Page with Links</a>
+            <a href="/example-site/examples/age">Age</a>
+            <a href="/example-site/examples/loading_color">Color Loading</a>
+            <a href="/example-site/examples/randomized_list">Randomized List</a>
+        </div>
+    </li>
+    <li class="w3-dropdown-hover">
+        <a href="#">Tasks  <i class="fa fa-caret-down"></i></a>
+        <div class="w3-dropdown-content w3-white w3-card-4" id="sync_menu">
+            <a href="/example-site/tasks/enter_a_number">Enter a number</a>
+            <a href="/example-site/tasks/locators_different">Different locators</a>
+            <a href="/example-site/tasks/list_of_people_with_jobs">People with jobs list</a>
+            <a href="/example-site/tasks/list_of_people">People list</a>
+            <a href="/example-site/tasks/list_of_people_random">People list (random order)</a>
+            <a href="/example-site/tasks/provide_feedback">Feedback form page</a>
+            <a href="/example-site/tasks/fitness_challenge">Fitness Challenge</a>
+        </div>
+    </li>
+</ul></div>
+<div class="w3-row">
+    <div class="w3-half">
+        <div class="" id="fb_thx">
+            <div class="w3-panel w3-green">
+                <h2 id="message">Thank you, Ieva Janušaitytė, for your feedback!</h2>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+
+</body></html>
