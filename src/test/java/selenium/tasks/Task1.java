@@ -159,18 +159,70 @@ public class Task1 {
 
     @Test
     public void yesOnWithoutNameFeedbackPage() throws Exception {
-        // TODO:
-        //  click "Send" (without entering anything)
-        //  click "Yes"
-        //  check message text: "Thank you for your feedback!"
+        // Click "Send" (without entering anything)
+        WebElement sendButton = driver.findElement(By.xpath("//button[@type='submit']"));
+        sendButton.click();
+
+        // Wait for the confirmation page to load
+        Thread.sleep(1000); // Simple wait, in production use WebDriverWait
+
+        // Click "Yes"
+        WebElement yesButton = driver.findElement(By.xpath("//button[text()='Yes']"));
+        yesButton.click();
+
+        // Wait for the feedback message to appear
+        Thread.sleep(500); // Simple wait, in production use WebDriverWait
+
+        // Check message text: "Thank you for your feedback!"
+        WebElement messageElement = driver.findElement(By.id("message"));
+        String expectedMessage = "Thank you for your feedback!";
+        assertEquals(expectedMessage, messageElement.getText(), "Message should be '" + expectedMessage + "'");
     }
 
     @Test
     public void noOnFeedbackPage() throws Exception {
-        // TODO:
-        //  fill the whole form
-        //  click "Send"
-        //  click "No"
-        //  check fields are filled correctly
+        // Fill the whole form
+        WebElement nameField = driver.findElement(By.id("fb_name"));
+        nameField.sendKeys("Sonakshi");
+
+        WebElement ageField = driver.findElement(By.id("fb_age"));
+        ageField.sendKeys("31");
+
+        // Select English language
+        WebElement englishCheckbox = driver.findElement(By.xpath("//input[@name='language' and @value='English']"));
+        englishCheckbox.click();
+
+        // Select Female gender
+        WebElement femaleRadio = driver.findElement(By.xpath("//input[@name='gender' and @value='female']"));
+        femaleRadio.click();
+
+        // Select "Good" option
+        WebElement likeUsSelect = driver.findElement(By.id("like_us"));
+        likeUsSelect.sendKeys("Good");
+
+        WebElement commentField = driver.findElement(By.name("comment"));
+        commentField.sendKeys("Great service!");
+
+        // Click "Send"
+        WebElement sendButton = driver.findElement(By.xpath("//button[@type='submit']"));
+        sendButton.click();
+
+        // Wait for the confirmation page to load
+        Thread.sleep(1000); // Simple wait, in production use WebDriverWait
+
+        // Click "No" (this should go back to the form)
+        WebElement noButton = driver.findElement(By.xpath("//button[text()='No']"));
+        noButton.click();
+
+        // Wait for the form page to load back
+        Thread.sleep(1000); // Simple wait, in production use WebDriverWait
+
+        // Check fields are filled correctly (should still have the data)
+        assertEquals("Sonakshi", nameField.getAttribute("value"), "Name should still be 'Sonakshi'");
+        assertEquals("31", ageField.getAttribute("value"), "Age should still be '31'");
+        assertTrue(englishCheckbox.isSelected(), "English checkbox should still be selected");
+        assertTrue(femaleRadio.isSelected(), "Female radio should still be selected");
+        assertEquals("Good", likeUsSelect.getAttribute("value"), "Option should still be 'Good'");
+        assertEquals("Great service!", commentField.getAttribute("value"), "Comment should still be 'Great service!'");
     }
 }
