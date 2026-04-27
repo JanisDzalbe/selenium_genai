@@ -1,7 +1,7 @@
 Feature: INITIAL PAGE LOAD
 
   Background:
-    Given I am on the fitness challenge page "https://janisdzalbe.github.io/example-site/tasks/fitness_challenge"
+    Given I am on the fitness challenge page
 
   Scenario: First time page load displays default participants and data
     When the page loads for the first time
