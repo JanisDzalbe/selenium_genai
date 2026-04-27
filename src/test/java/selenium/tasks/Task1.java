@@ -119,28 +119,67 @@ public class Task1 {
 
     @Test
     public void yesOnWithNameFeedbackPage() throws Exception {
+        WebElement nameField = driver.findElement(By.id("fb_name"));
+        nameField.clear();
+        nameField.sendKeys("John Doe");
 
-        // TODO:
-        //  enter only name
-        //  click "Send"
-        //  click "Yes"
-        //  check message text: "Thank you, NAME, for your feedback!"
+        WebElement button = driver.findElement(By.tagName("button"));
+        button.click();
+
+        WebElement yesButton = driver.findElement(By.xpath("//button[text()='Yes']"));
+        yesButton.click();
+
+        WebElement message = driver.findElement(By.id("message"));
+        assertEquals("Thank you, John Doe, for your feedback!", message.getText(), "Message should thank the user by name");
     }
 
     @Test
     public void yesOnWithoutNameFeedbackPage() throws Exception {
-        // TODO:
-        //  click "Send" (without entering anything)
-        //  click "Yes"
-        //  check message text: "Thank you for your feedback!"
+        WebElement button = driver.findElement(By.tagName("button"));
+        button.click();
+
+        WebElement yesButton = driver.findElement(By.xpath("//button[text()='Yes']"));
+        yesButton.click();
+
+        WebElement message = driver.findElement(By.id("message"));
+        assertEquals("Thank you for your feedback!", message.getText(), "Message should thank the user without name");
     }
 
     @Test
     public void noOnFeedbackPage() throws Exception {
-        // TODO:
-        //  fill the whole form
-        //  click "Send"
-        //  click "No"
-        //  check fields are filled correctly
+        WebElement nameField = driver.findElement(By.id("fb_name"));
+        WebElement ageField = driver.findElement(By.id("fb_age"));
+        WebElement textArea = driver.findElement(By.tagName("textarea"));
+        nameField.clear();
+        nameField.sendKeys("John Doe");
+        ageField.clear();
+        ageField.sendKeys("30");
+        textArea.clear();
+        textArea.sendKeys("This is a feedback message.");
+
+        WebElement languageSelect = driver.findElement(By.id("lang_check"));
+        List<WebElement> ticks = languageSelect.findElements(By.tagName("input"));
+        ticks.getFirst().click();
+
+        WebElement genreSelect = driver.findElement(By.xpath("//div[h3[text()='Select Your Genre:']]"));
+        List<WebElement> inputs = genreSelect.findElements(By.tagName("input"));
+        inputs.getFirst().click();
+
+        WebElement selectElement = driver.findElement(By.id("like_us"));
+        selectElement.findElement(By.xpath("option[text()='Good']")).click();
+
+        WebElement button = driver.findElement(By.tagName("button"));
+        button.click();
+
+        WebElement noButton = driver.findElement(By.xpath("//button[text()='No']"));
+        noButton.click();
+
+        assertEquals("John Doe", nameField.getAttribute("value"), "Name field should retain the value 'John Doe'");
+        assertEquals("30", ageField.getAttribute("value"), "Age field should retain the value '30'");
+        assertEquals("This is a feedback message.", textArea.getAttribute("value"), "Text area should retain the feedback message");
+        assertTrue(ticks.getFirst().isSelected(), "The English checkbox should remain selected");
+        assertTrue(inputs.getFirst().isSelected(), "The male radio button should remain selected");
+
+        assertEquals("Good", selectElement.findElement(By.cssSelector("option:checked")).getText(), "The selected option should remain 'Good'");
     }
 }
