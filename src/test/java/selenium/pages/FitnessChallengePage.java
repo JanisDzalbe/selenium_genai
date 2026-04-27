@@ -1,41 +1,54 @@
 package selenium.pages;
 
 import org.openqa.selenium.By;
+import org.openqa.selenium.JavascriptExecutor;
+import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
-import org.openqa.selenium.support.ui.WebDriverWait;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.Select;
+import org.openqa.selenium.support.ui.WebDriverWait;
 import java.time.Duration;
 import java.util.List;
 
 public class FitnessChallengePage {
-    private WebDriver driver;
-    private WebDriverWait wait;
+    private final WebDriver driver;
+    private final WebDriverWait wait;
 
-    // Locators matching actual HTML
-    public By pageTitle = By.tagName("h2");
-    public By participantsList = By.cssSelector("#participantsList li");
-    public By modal = By.id("addStepsModal");
-    public By modalTitle = By.cssSelector("#addStepsModal h3");
-    public By participantDropdown = By.id("participant_select");
-    public By stepsInput = By.id("steps_input");
-    public By addStepsSubmitButton = By.id("modal_add_steps_button");
-    public By modalCloseButton = By.className("w3-closebtn");
+    private final By pageTitleLocator        = By.tagName("h2");
+    private final By participantsListLocator = By.cssSelector("#participantsList li");
+    private final By modalLocator            = By.id("addStepsModal");
+    private final By modalTitleLocator       = By.cssSelector("#addStepsModal h3");
+    private final By dropdownLocator         = By.id("participant_select");
+    private final By stepsInputLocator       = By.id("steps_input");
+    private final By submitButtonLocator     = By.id("modal_add_steps_button");
+    private final By closeButtonLocator      = By.className("w3-closebtn");
 
     public FitnessChallengePage(WebDriver driver) {
         this.driver = driver;
         this.wait = new WebDriverWait(driver, Duration.ofSeconds(10));
     }
 
+    // ── Navigation ────────────────────────────────────────────────────────────
+
     public void openPage() {
         driver.get("https://janisdzalbe.github.io/example-site/tasks/fitness_challenge");
-        // On first visit, JS reloads the page to initialize localStorage; wait for participants
-        wait.until(ExpectedConditions.presenceOfAllElementsLocatedBy(participantsList));
+        // On first visit JS initialises localStorage then calls location.reload(); wait for the list
+        wait.until(ExpectedConditions.presenceOfAllElementsLocatedBy(participantsListLocator));
     }
 
+    public String getCurrentUrl() {
+        return driver.getCurrentUrl();
+    }
+
+    // ── Page-level queries ────────────────────────────────────────────────────
+
     public String getPageTitle() {
-        return wait.until(ExpectedConditions.visibilityOfElementLocated(pageTitle)).getText();
+        return wait.until(ExpectedConditions.visibilityOfElementLocated(pageTitleLocator)).getText();
+    }
+
+    public void waitForParticipantList() {
+        wait.until(ExpectedConditions.presenceOfAllElementsLocatedBy(participantsListLocator));
     }
 
     public int getParticipantCount() {
@@ -43,7 +56,7 @@ public class FitnessChallengePage {
     }
 
     public List<WebElement> getParticipants() {
-        return wait.until(ExpectedConditions.presenceOfAllElementsLocatedBy(participantsList));
+        return wait.until(ExpectedConditions.presenceOfAllElementsLocatedBy(participantsListLocator));
     }
 
     public String getParticipantName(WebElement participant) {
@@ -51,75 +64,115 @@ public class FitnessChallengePage {
     }
 
     public long getParticipantSteps(WebElement participant) {
-        String stepsText = participant.findElement(By.className("participant-steps")).getText();
-        stepsText = stepsText.replace(",", "").replace(" steps", "").trim();
-        return Long.parseLong(stepsText);
+        String text = participant.findElement(By.className("participant-steps")).getText();
+        return Long.parseLong(text.replace(",", "").replace(" steps", "").trim());
     }
 
+    public WebElement getParticipantByName(String name) {
+        return getParticipants().stream()
+                .filter(p -> getParticipantName(p).equals(name))
+                .findFirst()
+                .orElseThrow(() -> new NoSuchElementException("Participant not found: " + name));
+    }
+
+    // Trophy icons: <i class="fa fa-trophy" style="color:gold/silver/#cd7f32">
     public boolean hasTrophy(WebElement participant, String type) {
-        var participants = getParticipants();
-        int index = participants.indexOf(participant);
-        if (index == 0 && "gold".equals(type)) return true;
-        if (index == 1 && "silver".equals(type)) return true;
-        if (index == 2 && "bronze".equals(type)) return true;
-        return false;
+        String color = switch (type) {
+            case "gold"   -> "gold";
+            case "silver" -> "silver";
+            case "bronze" -> "#cd7f32";
+            default -> throw new IllegalArgumentException("Unknown trophy type: " + type);
+        };
+        return !participant.findElements(
+                By.xpath(".//i[contains(@class,'fa-trophy') and contains(@style,'" + color + "')]")
+        ).isEmpty();
     }
 
-    // Both top buttons share id="addStepsBtn"; get top by index 0, bottom by index 1
+    public int getVisibleButtonCount(String label) {
+        return (int) driver
+                .findElements(By.xpath("//button[normalize-space()='" + label + "']"))
+                .stream()
+                .filter(WebElement::isDisplayed)
+                .count();
+    }
+
+    // ── Add Steps modal ───────────────────────────────────────────────────────
+
     public void clickAddStepsTop() {
         driver.findElements(By.id("addStepsBtn")).get(0).click();
+        wait.until(ExpectedConditions.visibilityOfElementLocated(modalLocator));
     }
 
     public void clickAddStepsBottom() {
         driver.findElements(By.id("addStepsBtn")).get(1).click();
-    }
-
-    public void clickResetTop() {
-        if (isModalVisible()) {
-            closeModal();
-        }
-        driver.findElements(By.id("resetBtn")).get(0).click();
-        // Reset triggers location.reload(); wait for participants to re-appear
-        wait.until(ExpectedConditions.presenceOfAllElementsLocatedBy(participantsList));
-    }
-
-    public void clickResetBottom() {
-        if (isModalVisible()) {
-            closeModal();
-        }
-        driver.findElements(By.id("resetBtn")).get(1).click();
-        wait.until(ExpectedConditions.presenceOfAllElementsLocatedBy(participantsList));
+        wait.until(ExpectedConditions.visibilityOfElementLocated(modalLocator));
     }
 
     public boolean isModalVisible() {
-        List<WebElement> elements = driver.findElements(modal);
-        if (elements.isEmpty()) return false;
-        return elements.get(0).isDisplayed();
+        List<WebElement> elements = driver.findElements(modalLocator);
+        return !elements.isEmpty() && elements.get(0).isDisplayed();
     }
 
     public String getModalTitle() {
-        return wait.until(ExpectedConditions.visibilityOfElementLocated(modalTitle)).getText();
+        return wait.until(ExpectedConditions.visibilityOfElementLocated(modalTitleLocator)).getText();
+    }
+
+    public boolean isParticipantDropdownPresent() {
+        return !driver.findElements(dropdownLocator).isEmpty();
+    }
+
+    public boolean isStepsInputPresent() {
+        return !driver.findElements(stepsInputLocator).isEmpty();
+    }
+
+    public boolean isSubmitButtonPresent() {
+        return !driver.findElements(submitButtonLocator).isEmpty();
+    }
+
+    public String getSubmitButtonText() {
+        return driver.findElement(submitButtonLocator).getText();
+    }
+
+    public boolean isCloseButtonPresent() {
+        return !driver.findElements(closeButtonLocator).isEmpty();
+    }
+
+    public int getParticipantDropdownOptionCount() {
+        // Exclude the default "Choose participant" placeholder option
+        return new Select(driver.findElement(dropdownLocator)).getOptions().size() - 1;
+    }
+
+    public String getFirstSelectedDropdownOption() {
+        return new Select(driver.findElement(dropdownLocator)).getFirstSelectedOption().getText();
     }
 
     public void selectParticipant(String name) {
-        Select select = new Select(wait.until(ExpectedConditions.elementToBeClickable(participantDropdown)));
+        Select select = new Select(wait.until(ExpectedConditions.elementToBeClickable(dropdownLocator)));
         select.selectByVisibleText(name);
     }
 
     public void enterSteps(String steps) {
-        WebElement input = wait.until(ExpectedConditions.elementToBeClickable(stepsInput));
+        WebElement input = wait.until(ExpectedConditions.elementToBeClickable(stepsInputLocator));
         input.clear();
         input.sendKeys(steps);
     }
 
+    public String getStepsInputValue() {
+        return driver.findElement(stepsInputLocator).getAttribute("value");
+    }
+
     public void submitAddSteps() {
-        wait.until(ExpectedConditions.elementToBeClickable(addStepsSubmitButton)).click();
+        wait.until(ExpectedConditions.elementToBeClickable(submitButtonLocator)).click();
     }
 
     public void closeModal() {
-        WebElement closeBtn = wait.until(ExpectedConditions.elementToBeClickable(modalCloseButton));
-        ((org.openqa.selenium.JavascriptExecutor) driver).executeScript("arguments[0].click();", closeBtn);
+        WebElement closeBtn = wait.until(ExpectedConditions.elementToBeClickable(closeButtonLocator));
+        // W3.CSS close button may be obscured; JS click is more reliable here
+        ((JavascriptExecutor) driver).executeScript("arguments[0].click();", closeBtn);
+        wait.until(ExpectedConditions.invisibilityOfElementLocated(modalLocator));
     }
+
+    // ── Alerts ────────────────────────────────────────────────────────────────
 
     public String getAlertText() {
         return wait.until(ExpectedConditions.alertIsPresent()).getText();
@@ -129,16 +182,23 @@ public class FitnessChallengePage {
         driver.switchTo().alert().accept();
     }
 
-    public WebDriver getDriver() {
-        return driver;
+    // ── Reset buttons ─────────────────────────────────────────────────────────
+
+    public void clickResetTop() {
+        if (isModalVisible()) closeModal();
+        driver.findElements(By.id("resetBtn")).get(0).click();
+        waitForParticipantList();
     }
 
-    public WebElement getParticipantByName(String name) {
-        for (WebElement p : getParticipants()) {
-            if (getParticipantName(p).equals(name)) {
-                return p;
-            }
-        }
-        return null;
+    public void clickResetBottom() {
+        if (isModalVisible()) closeModal();
+        driver.findElements(By.id("resetBtn")).get(1).click();
+        waitForParticipantList();
+    }
+
+    // ── Driver access (use sparingly) ─────────────────────────────────────────
+
+    public WebDriver getDriver() {
+        return driver;
     }
 }

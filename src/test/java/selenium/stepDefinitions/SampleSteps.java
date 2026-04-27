@@ -1,23 +1,11 @@
 package selenium.stepDefinitions;
 
 import io.cucumber.java.en.Given;
-import selenium.stepDefinitions.Hooks;
-import io.cucumber.java.en.Then;
-import io.cucumber.java.en.When;
-import org.openqa.selenium.By;
-import org.openqa.selenium.WebDriver;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class SampleSteps {
 
-    public SampleSteps() {
-        // Can use static driver from Hooks directly
-    }
-
     @Given("^Some Example$")
-    public void someStep() throws Throwable {
-        // TODO: remove this example and implement actual steps
+    public void someStep() {
+        // Placeholder — replace with real step definitions or delete this class
     }
 }

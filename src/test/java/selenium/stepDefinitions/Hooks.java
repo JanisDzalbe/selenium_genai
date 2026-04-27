@@ -9,8 +9,6 @@ import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebDriverException;
 import selenium.utility.DriverManager;
 
-import java.time.Duration;
-
 public class Hooks {
     public static WebDriver driver;
 
@@ -19,22 +17,24 @@ public class Hooks {
         driver = DriverManager.createChromeDriver();
         driver.manage().window().maximize();
         driver.manage().deleteAllCookies();
-        driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(10));
+        // Do NOT set implicitlyWait here — all page objects use explicit WebDriverWait.
+        // Mixing implicit and explicit waits causes compounding timeouts.
     }
 
     @After
     public void embedScreenshot(Scenario scenario) {
-        if (scenario.isFailed()) {
+        if (scenario.isFailed() && driver != null) {
             try {
                 scenario.log("Current Page URL is " + driver.getCurrentUrl());
                 byte[] screenshot = ((TakesScreenshot) driver).getScreenshotAs(OutputType.BYTES);
                 scenario.attach(screenshot, "image/png", "screenshot");
-            } catch (WebDriverException somePlatformsDontSupportScreenshots) {
-                System.err.println(somePlatformsDontSupportScreenshots.getMessage());
+            } catch (WebDriverException e) {
+                System.err.println(e.getMessage());
             }
         }
         if (driver != null) {
             driver.quit();
+            driver = null;
         }
     }
 }
