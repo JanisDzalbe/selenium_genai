@@ -13,18 +13,12 @@ import org.openqa.selenium.WebDriver;
 import java.util.HashMap;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 public class SampleSteps {
 
     public SampleSteps() {
         // Can use static driver from Hooks directly
-    }
-
-    @Given("^Some Example$")
-    public void someStep() throws Throwable {
-        // TODO: remove this example and implement actual steps
     }
 
     @Given("I am on the fitness challenge page {string}")
@@ -41,13 +35,13 @@ public class SampleSteps {
         assertEquals(title, Hooks.driver.getTitle());
     }
 
-    @And("{int} participants are displayed in the list")
+    @Then("{int} participants are displayed in the list")
     public void participantsAreDisplayedInTheList(int n) {
         List<WebElement> participants = Hooks.driver.findElement(By.id("participantsList")).findElements(By.tagName("div"));
         assertEquals(n, participants.size());
     }
 
-    @And("the default participants are displayed:")
+    @Then("the default participants are displayed:")
     public void theDefaultParticipantsAreDisplayed(List<List<String>> expectedParticipants) {
         List<WebElement> participantElements = Hooks.driver.findElement(By.id("participantsList")).findElements(By.tagName("div"));
         HashMap<String, Integer> infoOnWebsite = new HashMap<>();
@@ -68,7 +62,7 @@ public class SampleSteps {
         assertEquals(expectedInfo, infoOnWebsite);
     }
 
-    @And("{string} buttons are visible at top and bottom")
+    @Then("{string} buttons are visible at top and bottom")
     public void buttonsAreVisibleAtTopAndBottom(String text) {
         String id = text.equals("Add Steps") ? "addStepsBtn" : "resetBtn";
         List<WebElement> buttons = Hooks.driver.findElements(By.id(id));
@@ -76,6 +70,57 @@ public class SampleSteps {
         for (WebElement button : buttons) {
             assertTrue(button.isDisplayed());
             assertEquals(text, button.getText());
+        }
+    }
+
+    @When("I view the participant list")
+    public void iViewTheParticipantList() {
+    }
+
+
+    @Then("participants are displayed in descending order by step count")
+    public void participantsAreDisplayedInDescendingOrderByStepCount() {
+        List<WebElement> participantElements = Hooks.driver.findElement(By.id("participantsList")).findElements(By.tagName("div"));
+        List<Integer> steps = participantElements.stream()
+                .map(element -> Integer.parseInt(element.findElement(By.className("participant-steps"))
+                .getText().replaceAll("[^0-9]", ""))).toList();
+        for (int i = 1; i < steps.size(); i++) {
+            assertTrue(steps.get(i) <= steps.get(i - 1));
+        }
+    }
+
+    @Then("each participant's step count is greater than or equal to the participant below them")
+    public void eachParticipantSStepCountIsGreaterThanOrEqualToTheParticipantBelowThem() {
+        participantsAreDisplayedInDescendingOrderByStepCount();
+    }
+
+    @Then("the following participants display trophy icons:")
+    public void theFollowingParticipantsDisplayTrophyIcons(List<List<String>> table) {
+        List<WebElement> participantElements = Hooks.driver.findElement(By.id("participantsList")).findElements(By.tagName("div"));
+        table.removeFirst(); // Remove header
+        for (List<String> row : table) {
+            int place = Integer.parseInt(row.get(0));
+            String color = row.get(1);
+            WebElement trophy = participantElements.get(place - 1).findElement(By.className("fa-trophy"));
+            String style = trophy.getAttribute("style");
+            for (String part : style.split(";")) {
+                if (part.trim().startsWith("color:")) {
+                    switch (color) {
+                        case "gold" -> assertTrue(part.contains("gold"));
+                        case "silver" -> assertTrue(part.contains("silver"));
+                        case "bronze" -> assertTrue(part.contains("rgb(205, 127, 50)"));
+                    }
+                }
+            }
+        }
+    }
+
+    @And("participants ranked {int}th and below have no trophy icons")
+    public void participantsRankedThAndBelowHaveNoTrophyIcons(int place) {
+        List<WebElement> participantElements = Hooks.driver.findElement(By.id("participantsList")).findElements(By.tagName("div"));
+        for (int i = place - 1; i < participantElements.size(); i++) {
+            List<WebElement> trophies = participantElements.get(i).findElements(By.className("fa-trophy"));
+            assertTrue(trophies.isEmpty());
         }
     }
 }

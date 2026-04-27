@@ -10,7 +10,9 @@ Feature: PARTICIPANT DISPLAY AND RANKING
 
   Scenario: Top three participants display trophy icons
     When I view the participant list
-    Then the 1st place participant displays a gold trophy icon
-    And the 2nd place participant displays a silver trophy icon
-    And the 3rd place participant displays a bronze trophy icon
+    Then the following participants display trophy icons:
+      | place | color  |
+      | 1     | gold   |
+      | 2     | silver |
+      | 3     | bronze |
     And participants ranked 4th and below have no trophy icons
