@@ -16,21 +16,19 @@ public class FitnessChallengePage {
     private WebDriverWait wait;
 
     // Locators
-    private By pageTitle = By.tagName("h1");
+    private By pageTitle = By.tagName("h2");
     private By participantsList = By.id("participantsList");
-    private By participantDivs = By.cssSelector("#participantsList > div");
-    private By addStepsTop = By.id("addStepsBtnTop");
-    private By addStepsBottom = By.id("addStepsBtnBottom");
-    private By resetTop = By.id("resetBtnTop");
-    private By resetBottom = By.id("resetBtnBottom");
+    private By participantItems = By.cssSelector("#participantsList li");
+    private By addStepsButtons = By.id("addStepsBtn");
+    private By resetButtons = By.id("resetBtn");
 
     // Modal locators
-    private By modal = By.className("modal");
-    private By modalTitle = By.cssSelector(".modal-title");
-    private By participantDropdown = By.id("participantSelect");
-    private By stepsInput = By.id("stepsInput");
-    private By addStepsSubmit = By.cssSelector(".modal .btn-primary");
-    private By closeModal = By.cssSelector(".modal .close");
+    private By modal = By.id("addStepsModal");
+    private By modalTitle = By.tagName("h3");
+    private By participantDropdown = By.id("participant_select");
+    private By stepsInput = By.id("steps_input");
+    private By addStepsSubmit = By.id("modal_add_steps_button");
+    private By closeModal = By.cssSelector(".w3-closebtn");
 
     public FitnessChallengePage(WebDriver driver) {
         this.driver = driver;
@@ -43,11 +41,11 @@ public class FitnessChallengePage {
     }
 
     public int getParticipantCount() {
-        return driver.findElements(participantDivs).size();
+        return driver.findElements(participantItems).size();
     }
 
     public List<Map<String, String>> getParticipants() {
-        List<WebElement> participantElements = driver.findElements(participantDivs);
+        List<WebElement> participantElements = driver.findElements(participantItems);
         List<Map<String, String>> participants = new java.util.ArrayList<>();
         for (WebElement element : participantElements) {
             String name = element.findElement(By.className("participant-name")).getText();
@@ -61,19 +59,23 @@ public class FitnessChallengePage {
     }
 
     public void clickAddStepsTop() {
-        driver.findElement(addStepsTop).click();
+        List<WebElement> buttons = driver.findElements(addStepsButtons);
+        if (buttons.size() >= 1) buttons.get(0).click();
     }
 
     public void clickAddStepsBottom() {
-        driver.findElement(addStepsBottom).click();
+        List<WebElement> buttons = driver.findElements(addStepsButtons);
+        if (buttons.size() >= 2) buttons.get(1).click();
     }
 
     public void clickResetTop() {
-        driver.findElement(resetTop).click();
+        List<WebElement> buttons = driver.findElements(resetButtons);
+        if (buttons.size() >= 1) buttons.get(0).click();
     }
 
     public void clickResetBottom() {
-        driver.findElement(resetBottom).click();
+        List<WebElement> buttons = driver.findElements(resetButtons);
+        if (buttons.size() >= 2) buttons.get(1).click();
     }
 
     // Modal actions
@@ -122,7 +124,7 @@ public class FitnessChallengePage {
 
     // Trophy actions
     public String getTrophyColor(int place) {
-        List<WebElement> participantElements = driver.findElements(participantDivs);
+        List<WebElement> participantElements = driver.findElements(participantItems);
         if (place > participantElements.size()) return null;
         try {
             WebElement trophy = participantElements.get(place - 1).findElement(By.className("fa-trophy"));
@@ -149,34 +151,22 @@ public class FitnessChallengePage {
 
     // Button display actions
     public boolean isAddStepsTopDisplayed() {
-        try {
-            return driver.findElement(addStepsTop).isDisplayed();
-        } catch (Exception e) {
-            return false;
-        }
+        List<WebElement> buttons = driver.findElements(addStepsButtons);
+        return buttons.size() >= 1 && buttons.get(0).isDisplayed();
     }
 
     public boolean isAddStepsBottomDisplayed() {
-        try {
-            return driver.findElement(addStepsBottom).isDisplayed();
-        } catch (Exception e) {
-            return false;
-        }
+        List<WebElement> buttons = driver.findElements(addStepsButtons);
+        return buttons.size() >= 2 && buttons.get(1).isDisplayed();
     }
 
     public boolean isResetTopDisplayed() {
-        try {
-            return driver.findElement(resetTop).isDisplayed();
-        } catch (Exception e) {
-            return false;
-        }
+        List<WebElement> buttons = driver.findElements(resetButtons);
+        return buttons.size() >= 1 && buttons.get(0).isDisplayed();
     }
 
     public boolean isResetBottomDisplayed() {
-        try {
-            return driver.findElement(resetBottom).isDisplayed();
-        } catch (Exception e) {
-            return false;
-        }
+        List<WebElement> buttons = driver.findElements(resetButtons);
+        return buttons.size() >= 2 && buttons.get(1).isDisplayed();
     }
 }

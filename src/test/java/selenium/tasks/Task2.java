@@ -60,7 +60,7 @@ public class Task2 {
             String name = participant.get("name");
             String steps = participant.get("steps");
             assertTrue(expectedSteps.containsKey(name), "Participant " + name + " not found in expected list");
-            assertEquals(expectedSteps.get(name), steps, "Steps for " + name + " do not match expected value");
+            assertEquals(expectedSteps.get(name) + " steps", steps, "Steps for " + name + " do not match expected value");
         }
 
         // verify "Add Steps" and "Reset List" buttons are visible (appear twice - top and bottom)
