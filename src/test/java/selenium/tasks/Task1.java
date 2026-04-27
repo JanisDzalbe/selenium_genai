@@ -36,7 +36,7 @@ public class Task1 {
 
     @Test
     public void emptyFeedbackPage() throws Exception {
-        // TODO:
+        // TODO:ss
         //  click "Send" without entering any data
         //  check fields are empty or "null"
     }
