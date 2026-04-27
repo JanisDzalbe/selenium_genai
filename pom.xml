@@ -14,8 +14,8 @@
     <description>Selenium WebDriver testing framework teaching test automation fundamentals</description>
 
     <properties>
-        <maven.compiler.source>21</maven.compiler.source>
-        <maven.compiler.target>21</maven.compiler.target>
+        <maven.compiler.source>24</maven.compiler.source>
+        <maven.compiler.target>24</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <selenium.version>4.43.0</selenium.version>
         <junit.version>5.14.3</junit.version>
@@ -81,8 +81,8 @@
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.11.0</version>
                 <configuration>
-                    <source>21</source>
-                    <target>21</target>
+                    <source>24</source>
+                    <target>24</target>
                     <encoding>UTF-8</encoding>
                 </configuration>
             </plugin>
