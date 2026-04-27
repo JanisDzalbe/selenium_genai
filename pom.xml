@@ -17,7 +17,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.source>24</maven.compiler.source>
         <maven.compiler.target>24</maven.compiler.target>
-        <selenium.version>4.25.0</selenium.version>
+        <selenium.version>4.40.0</selenium.version>
         <cucumber.version>7.18.0</cucumber.version>
         <junit.version>5.10.2</junit.version>
     </properties>
