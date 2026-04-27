@@ -11,7 +11,7 @@ Feature: ADDING STEPS TO PARTICIPANTS
     And I click "Add Steps" button
     Then the modal closes automatically
     And the participant list refreshes
-    And Mike Kid's step count increases by 1,000
+    And Mike Kid's step count increases by 1000
     And the list re-sorts if Mike Kid's new total changes his ranking
 
   Scenario: Add zero steps to a participant
