@@ -106,8 +106,8 @@ public class SampleSteps {
     @Then("{string} buttons are visible at top and bottom")
     public void verifyButtonsVisibility(String buttonType) {
         By locator = switch (buttonType) {
-            case "Add Steps"   -> ADD_STEPS_BUTTONS;
-            case "Reset List"  -> RESET_BUTTONS;
+            case "Add Steps"  -> ADD_STEPS_BUTTONS;
+            case "Reset List" -> RESET_BUTTONS;
             default -> throw new IllegalArgumentException("Unknown button type: " + buttonType);
         };
 
@@ -120,6 +120,92 @@ public class SampleSteps {
         for (int i = 0; i < 2; i++) {
             assertTrue(buttons.get(i).isDisplayed(),
                     "Button " + (i + 1) + " '" + buttonType + "' should be visible");
+        }
+    }
+
+    // ── When (ranking scenario) ───────────────────────────────────────────────
+
+    @When("I view the participant list")
+    public void viewParticipantList() {
+        assertTrue(
+                driver.findElement(PARTICIPANTS_LIST).isDisplayed(),
+                "Participants list should be visible"
+        );
+    }
+
+    // ── Then (ranking scenario) ───────────────────────────────────────────────
+
+    @Then("participants are displayed in descending order by step count")
+    public void verifyDescendingOrder() {
+        List<WebElement> stepElements = driver.findElements(PARTICIPANT_STEPS);
+
+        int previousSteps = Integer.MAX_VALUE;
+        for (WebElement stepElement : stepElements) {
+            // Text is e.g. "15,000 steps" — strip commas and the " steps" suffix.
+            int currentSteps = Integer.parseInt(
+                    stepElement.getText().replace(",", "").replace(" steps", "").trim()
+            );
+            assertTrue(currentSteps <= previousSteps,
+                    "Expected descending order but " + currentSteps + " > " + previousSteps);
+            previousSteps = currentSteps;
+        }
+    }
+
+    @Then("each participant's step count is greater than or equal to the participant below them")
+    public void verifyStepCountOrdering() {
+        // Same invariant as the previous step — reuse to avoid duplicating DOM reads.
+        verifyDescendingOrder();
+    }
+
+    /**
+     * Core helper — not a step itself. Finds participant_displayN, asserts a
+     * trophy icon exists and that its computed colour matches the expected RGB.
+     */
+    private void assertTrophyColor(int position, String colorName, String expectedRgb) {
+        WebElement participant = driver.findElement(
+                By.id("participant_display" + (position - 1))
+        );
+
+        List<WebElement> trophyIcons = participant.findElements(By.className("fa-trophy"));
+        assertFalse(trophyIcons.isEmpty(),
+                "Position " + position + " should have a trophy icon");
+
+        WebElement trophy = trophyIcons.getFirst();
+        assertTrue(trophy.isDisplayed(),
+                "Trophy icon at position " + position + " should be visible");
+
+        // Inline style="color:gold" is normalised to rgb(...) by the browser.
+        String actualColor = trophy.getCssValue("color");
+        assertEquals(expectedRgb, actualColor,
+                "Position " + position + " trophy should be " + colorName
+                        + " (" + expectedRgb + ") but got: " + actualColor);
+    }
+
+    @Then("the 1st place participant displays a gold trophy icon")
+    public void verifyFirstPlaceGoldTrophy() {
+        assertTrophyColor(1, "gold", "rgba(255, 215, 0, 1)");
+    }
+
+    @Then("the 2nd place participant displays a silver trophy icon")
+    public void verifySecondPlaceSilverTrophy() {
+        assertTrophyColor(2, "silver", "rgba(192, 192, 192, 1)");
+    }
+
+    @Then("the 3rd place participant displays a bronze trophy icon")
+    public void verifyThirdPlaceBronzeTrophy() {
+        assertTrophyColor(3, "bronze", "rgba(205, 127, 50, 1)");
+    }
+
+    @Then("participants ranked {int}th and below have no trophy icons")
+    public void verifyNoTrophyIconsBelowRank(int startingRank) {
+        List<WebElement> allParticipants = driver.findElements(PARTICIPANT_NAMES);
+
+        for (int i = startingRank - 1; i < allParticipants.size(); i++) {
+            WebElement participant = driver.findElement(By.id("participant_display" + i));
+            List<WebElement> trophies = participant.findElements(By.className("fa-trophy"));
+            assertTrue(trophies.isEmpty(),
+                    "Participant at position " + (i + 1) + " (rank " + (i + 1)
+                            + ") should NOT have a trophy icon");
         }
     }
 }
