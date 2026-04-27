@@ -259,7 +259,7 @@ public class SampleSteps {
 
         List<WebElement> buttons = driver.findElements(By.id("addStepsBtn"));
 
-        // на странице 2 кнопки → берем последнюю (bottom)
+
         WebElement bottomButton = buttons.get(buttons.size() - 1);
 
         bottomButton.click();

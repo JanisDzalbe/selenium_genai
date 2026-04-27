@@ -1,10 +1,22 @@
 package selenium.tasks;
 
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.*;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.WebDriverWait;
 import selenium.utils.WebDriverUtils;
+import selenium.pages.FitnessChallengePage;
+
+import java.time.Duration;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class Task2 {
     WebDriver driver;
@@ -43,7 +55,24 @@ public class Task2 {
         //   Maria Rodriguez: 10,500,
         //   Alex Taylor: 8,900
         //  verify "Add Steps" and "Reset List" buttons are visible (appear twice - top and bottom)
+        FitnessChallengePage page = new FitnessChallengePage(driver);
+
+        page.open();
+
+        assertEquals("Fitness Challenge", page.getTitle());
+
+        assertEquals(10, page.getParticipants().size());
+
+        List<Integer> steps = page.getSteps();
+
+        for (int i = 0; i < steps.size() - 1; i++) {
+            assertTrue(steps.get(i) >= steps.get(i + 1));
+        }
+
+        assertEquals(2, page.getAddButtons().size());
+        assertEquals(2, page.getResetButtons().size());
     }
+
 
     // FEATURE 2: PARTICIPANT DISPLAY AND RANKING
 
@@ -53,6 +82,31 @@ public class Task2 {
         //  review the order of participants in the list
         //  verify participants are displayed in descending order by step count
         //  verify each participant's step count is greater than or equal to the participant below them
+        FitnessChallengePage page = new FitnessChallengePage(driver);
+
+        page.open();
+
+        List<Integer> steps = page.getSteps();
+
+
+        for (int i = 0; i < steps.size() - 1; i++) {
+            assertTrue(
+                    steps.get(i) >= steps.get(i + 1),
+                    "List is not sorted in descending order"
+            );
+        }
+
+
+        boolean isValidOrder = true;
+
+        for (int i = 0; i < steps.size() - 1; i++) {
+            if (steps.get(i) < steps.get(i + 1)) {
+                isValidOrder = false;
+                break;
+            }
+        }
+
+        assertTrue(isValidOrder);
     }
 
     @Test
@@ -63,6 +117,30 @@ public class Task2 {
         //  verify 2nd place participant displays a silver trophy icon
         //  verify 3rd place participant displays a bronze (#cd7f32) trophy icon
         //  verify participants ranked 4th and below have no trophy icons
+        FitnessChallengePage page = new FitnessChallengePage(driver);
+        page.open();
+
+        List<WebElement> participants = page.getParticipantItems();
+
+        // 1st place
+        String firstColor = page.getIconColor(participants.get(0));
+        assertEquals("rgba(255, 215, 0, 1)", firstColor); // gold
+
+        // 2nd place
+        String secondColor = page.getIconColor(participants.get(1));
+        assertEquals("rgba(192, 192, 192, 1)", secondColor); // silver
+
+        // 3rd place
+        String thirdColor = page.getIconColor(participants.get(2));
+        assertEquals("rgba(205, 127, 50, 1)", thirdColor); // bronze
+
+        // 4th and below → no icon
+        for (int i = 3; i < participants.size(); i++) {
+            List<WebElement> icons = participants.get(i)
+                    .findElements(By.cssSelector("i.fa-trophy"));
+
+            assertTrue(icons.isEmpty(), "Unexpected trophy icon at index " + i);
+        }
     }
 
     // FEATURE 3: ADD STEPS MODAL
@@ -79,6 +157,37 @@ public class Task2 {
         //  verify modal has a close button (×) in the top-right corner
         //  verify dropdown is prepopulated with all 10 participants
         //  verify default dropdown text shows "Choose participant"
+        FitnessChallengePage page = new FitnessChallengePage(driver);
+
+        page.open();
+
+        // open modal
+        page.clickTopAddSteps();
+
+        // modal visible
+        assertTrue(page.isModalVisible());
+
+        // title
+        assertEquals(
+                "Add Steps to Participant",
+                page.getModalTitle()
+        );
+
+        // elements exist
+        assertTrue(page.isDropdownPresent());
+        assertTrue(page.isStepsInputPresent());
+        assertTrue(page.isSubmitButtonPresent());
+        assertTrue(page.isCloseButtonPresent());
+
+        // dropdown prepopulated
+        assertEquals(11, page.getDropdownOptions().size());
+        // 10 + placeholder
+
+        // default text
+        assertEquals(
+                "Choose participant",
+                page.getDropdownDefaultText()
+        );
     }
 
     @Test
@@ -89,6 +198,26 @@ public class Task2 {
         //  click the button
         //  verify modal opens
         //  verify all modal elements (same behavior as openModalViaTopButton)
+        FitnessChallengePage page = new FitnessChallengePage(driver);
+
+        page.open();
+
+        // открыть через нижнюю кнопку
+        page.clickBottomAddSteps();
+
+        // базовая проверка модалки
+        assertTrue(page.isModalVisible());
+        assertEquals("Add Steps to Participant", page.getModalTitle());
+
+        // элементы модалки
+        assertTrue(page.isDropdownPresent());
+        assertTrue(page.isStepsInputPresent());
+        assertTrue(page.isSubmitButtonPresent());
+        assertTrue(page.isCloseButtonPresent());
+
+        // данные dropdown
+        assertEquals("Choose participant", page.getDropdownDefaultText());
+        assertEquals(11, page.getDropdownOptions().size());
     }
 
     @Test
