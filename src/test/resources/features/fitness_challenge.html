@@ -1,0 +1,181 @@
+<html>
+<head>
+    <title>Fitness Challenge</title>
+    <link rel="stylesheet" type="text/css" href="../css/w3.css">
+    <link rel="stylesheet" type="text/css" href="../css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+    <script src="../js/scripts.js"></script>
+    <script>
+        $(document).ready(function() {
+          if(localStorage.getItem("fitnessReload") == null) {
+            setNewFitnessParticipants();
+          }
+          loadFitnessParticipants();
+        });
+    </script>
+</head>
+<body>
+<div id="header">
+    <ul class="w3-navbar w3-black w3-large">
+        <li><a href="/example-site/">Home</a></li>
+        <li class="w3-dropdown-hover">
+            <a href="#">Page Examples <i class="fa fa-caret-down"></i></a>
+            <div class="w3-dropdown-content w3-white w3-card-4" id="base_menu">
+                <a href="/example-site/examples/locators">Locators</a>
+                <a href="/example-site/examples/actions">Actions</a>
+                <a href="/example-site/examples/alerted_page">Alerted page</a>
+                <a href="/example-site/examples/alerts_popups">Alert and pop-ups</a>
+                <a href="/example-site/examples/styles">Styles</a>
+                <a href="/example-site/examples/sync">Synchronization</a>
+                <a href="/example-site/examples/po">Page with Links</a>
+                <a href="/example-site/examples/age">Age</a>
+                <a href="/example-site/examples/loading_color">Color Loading</a>
+                <a href="/example-site/examples/randomized_list">Randomized List</a>
+            </div>
+        </li>
+        <li class="w3-dropdown-hover">
+            <a href="#">Tasks <i class="fa fa-caret-down"></i></a>
+            <div class="w3-dropdown-content w3-white w3-card-4" id="sync_menu">
+                <a href="/example-site/tasks/enter_a_number">Enter a number</a>
+                <a href="/example-site/tasks/locators_different">Different locators</a>
+                <a href="/example-site/tasks/list_of_people_with_jobs">People with jobs list</a>
+                <a href="/example-site/tasks/list_of_people">People list</a>
+                <a href="/example-site/tasks/list_of_people_random">People list (random order)</a>
+                <a href="/example-site/tasks/provide_feedback">Feedback form page</a>
+                <a href="/example-site/tasks/fitness_challenge">Fitness Challenge</a>
+            </div>
+        </li>
+    </ul>
+</div>
+
+<div class="w3-container">
+    <h2>Fitness Challenge</h2>
+    <button class="w3-btn w3-white w3-border w3-left w3-margin" onclick="openModalForAddSteps()" id="addStepsBtn">Add
+        Steps
+    </button>
+    <button class="w3-btn w3-white w3-border w3-left w3-margin" onclick="resetFitnessChallenge()" id="resetBtn">Reset
+        List
+    </button>
+</div>
+
+<div class="w3-row">
+    <div class="w3-container">
+        <ul class="w3-ul w3-card-4" id="participantsList">
+            <div class="w3-padding-16">
+                <li id="participant_display0"><i class="fa fa-trophy"
+                                                 style="font-size:24px;color:gold;margin-right:10px;"></i><span
+                        class="w3-large participant-name">John Smith</span><span
+                        class="w3-right w3-tag w3-blue w3-round participant-steps">15,000 steps</span></li>
+            </div>
+            <div class="w3-padding-16">
+                <li id="participant_display1"><i class="fa fa-trophy"
+                                                 style="font-size:24px;color:silver;margin-right:10px;"></i><span
+                        class="w3-large participant-name">David Brown</span><span
+                        class="w3-right w3-tag w3-blue w3-round participant-steps">13,500 steps</span></li>
+            </div>
+            <div class="w3-padding-16">
+                <li id="participant_display2"><i class="fa fa-trophy"
+                                                 style="font-size:24px;color:#cd7f32;margin-right:10px;"></i><span
+                        class="w3-large participant-name">Jill Watson</span><span
+                        class="w3-right w3-tag w3-blue w3-round participant-steps">12,000 steps</span></li>
+            </div>
+            <div class="w3-padding-16">
+                <li id="participant_display3"><span class="w3-large participant-name">Carlos Garcia</span><span
+                        class="w3-right w3-tag w3-blue w3-round participant-steps">11,200 steps</span></li>
+            </div>
+            <div class="w3-padding-16">
+                <li id="participant_display4"><span class="w3-large participant-name">Maria Rodriguez</span><span
+                        class="w3-right w3-tag w3-blue w3-round participant-steps">10,500 steps</span></li>
+            </div>
+            <div class="w3-padding-16">
+                <li id="participant_display5"><span class="w3-large participant-name">Sarah Johnson</span><span
+                        class="w3-right w3-tag w3-blue w3-round participant-steps">9,800 steps</span></li>
+            </div>
+            <div class="w3-padding-16">
+                <li id="participant_display6"><span class="w3-large participant-name">Alex Taylor</span><span
+                        class="w3-right w3-tag w3-blue w3-round participant-steps">8,900 steps</span></li>
+            </div>
+            <div class="w3-padding-16">
+                <li id="participant_display7"><span class="w3-large participant-name">Mike Kid</span><span
+                        class="w3-right w3-tag w3-blue w3-round participant-steps">8,500 steps</span></li>
+            </div>
+            <div class="w3-padding-16">
+                <li id="participant_display8"><span class="w3-large participant-name">Emily Chen</span><span
+                        class="w3-right w3-tag w3-blue w3-round participant-steps">7,300 steps</span></li>
+            </div>
+            <div class="w3-padding-16">
+                <li id="participant_display9"><span class="w3-large participant-name">Jane Doe</span><span
+                        class="w3-right w3-tag w3-blue w3-round participant-steps">6,500 steps</span></li>
+            </div>
+        </ul>
+    </div>
+</div>
+<br>
+<div class="w3-container">
+    <button class="w3-btn w3-white w3-border w3-left w3-margin" onclick="openModalForAddSteps()" id="addStepsBtn">Add
+        Steps
+    </button>
+    <button class="w3-btn w3-white w3-border w3-left w3-margin" onclick="resetFitnessChallenge()" id="resetBtn">Reset
+        List
+    </button>
+</div>
+
+<!-- Modal for Adding Steps -->
+<div id="addStepsModal" class="w3-modal">
+    <div class="w3-modal-content w3-card-4 w3-animate-zoom" style="max-width:600px">
+        <div class="w3-center"><br>
+            <span onclick="document.getElementById('addStepsModal').style.display='none'"
+                  class="w3-closebtn w3-hover-red w3-container w3-padding-8 w3-display-topright"
+                  title="Close Modal">×</span>
+        </div>
+
+        <form class="w3-container" onsubmit="return false;">
+            <div class="w3-section">
+                <h3>Add Steps to Participant</h3>
+
+                <label><b>Select Participant</b></label>
+                <select class="w3-select w3-border w3-margin-bottom" id="participant_select" required="">
+                    <option value="" disabled="" selected="">Choose participant</option>
+                </select>
+
+                <label><b>Number of Steps</b></label>
+                <input class="w3-input w3-border w3-margin-bottom" type="number" placeholder="Enter number of steps"
+                       id="steps_input" min="0" required="">
+
+                <button class="w3-btn-block w3-green w3-section w3-padding" type="submit"
+                        onclick="addStepsToParticipant()" id="modal_add_steps_button">Add Steps
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+<!-- Modal for Adding Steps -->
+<div id="addStepsModal" class="w3-modal" style="display: block;">
+    <div class="w3-modal-content w3-card-4 w3-animate-zoom" style="max-width:600px">
+        <div class="w3-center"><br>
+            <span onclick="document.getElementById('addStepsModal').style.display='none'" class="w3-closebtn w3-hover-red w3-container w3-padding-8 w3-display-topright" title="Close Modal">×</span>
+        </div>
+
+        <form class="w3-container" onsubmit="return false;">
+            <div class="w3-section">
+                <h3>Add Steps to Participant</h3>
+
+                <label><b>Select Participant</b></label>
+                <select class="w3-select w3-border w3-margin-bottom" id="participant_select" required=""><option value="" disabled="" selected="">Choose participant</option><option value="0">Mike Kid</option><option value="1">Jill Watson</option><option value="2">Jane Doe</option><option value="3">John Smith</option><option value="4">Sarah Johnson</option><option value="5">Carlos Garcia</option><option value="6">Emily Chen</option><option value="7">David Brown</option><option value="8">Maria Rodriguez</option><option value="9">Alex Taylor</option></select>
+
+                <label><b>Number of Steps</b></label>
+                <input class="w3-input w3-border w3-margin-bottom" type="number" placeholder="Enter number of steps" id="steps_input" min="0" required="">
+
+                <button class="w3-btn-block w3-green w3-section w3-padding" type="submit" onclick="addStepsToParticipant()" id="modal_add_steps_button">Add Steps</button>
+            </div>
+        </form>
+    </div>
+</div>
+<p class="copyrights w3-center">(c) Who would even want to steal this?</p>
+
+
+</body>
+</html>
+
+
