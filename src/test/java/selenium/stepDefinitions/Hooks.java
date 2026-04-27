@@ -7,23 +7,16 @@ import org.openqa.selenium.OutputType;
 import org.openqa.selenium.TakesScreenshot;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebDriverException;
-import org.openqa.selenium.chrome.ChromeDriver;
+import selenium.utility.DriverManager;
 
-import java.io.File;
 import java.time.Duration;
 
 public class Hooks {
     public static WebDriver driver;
-    static String libWithDriversLocation = System.getProperty("user.dir") + File.separator + "lib" + File.separator;
 
     @Before
     public void openBrowser() {
-        if (System.getProperty("os.name").toLowerCase().contains("mac")) {
-            System.setProperty("webdriver.chrome.driver", libWithDriversLocation + "chromedriver");
-        } else {
-            System.setProperty("webdriver.chrome.driver", libWithDriversLocation + "chromedriver.exe");
-        }
-        driver = new ChromeDriver();
+        driver = DriverManager.createChromeDriver();
         driver.manage().window().maximize();
         driver.manage().deleteAllCookies();
         driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(10));
