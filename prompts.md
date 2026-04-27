@@ -1,5 +1,7 @@
 Create Instructions:
 ```
+
+
 Analyze this codebase to generate or update `.github/copilot-instructions.md` for guiding AI coding agents.
 
 Focus on discovering the essential knowledge that would help an AI agents be immediately productive in this codebase. Consider aspects like:
