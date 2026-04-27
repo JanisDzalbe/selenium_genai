@@ -6,6 +6,7 @@ import org.junit.jupiter.api.Test;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
+import selenium.utility.DriverFactory;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -14,19 +15,20 @@ public class Task1 {
 
     @BeforeEach
     public void openPage() {
-        // TODO
-        //  initialize the driver
-        //  open page https://janisdzalbe.github.io/example-site/tasks/provide_feedback
+        driver = DriverFactory.getChromeDriver();
+        driver.get("https://janisdzalbe.github.io/example-site/tasks/provide_feedback");
     }
 
     @AfterEach
     public void closeBrowser() {
-        // TODO
-        //  close the browser
+        if (driver != null) {
+            driver.quit();
+        }
     }
 
     @Test
     public void initialFeedbackPage() throws Exception {
+        
         // TODO:
         //  check that all field are empty and no ticks are clicked
         //  "Don't know" is selected in "Genre"
