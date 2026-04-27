@@ -4,44 +4,70 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.openqa.selenium.WebDriver;
+import selenium.pages.FitnessChallengePage;
+import selenium.utility.DriverFactory;
+
+import java.util.List;
+import java.util.Map;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 public class Task2 {
     WebDriver driver;
+    FitnessChallengePage page;
 
     @BeforeEach
     public void openPage() {
-        // TODO
-        //  initialize the driver
-        //  open page https://janisdzalbe.github.io/example-site/tasks/fitness_challenge
+        driver = DriverFactory.getChromeDriver();
+        driver.get("https://janisdzalbe.github.io/example-site/tasks/fitness_challenge");
+        page = new FitnessChallengePage(driver);
     }
 
     @AfterEach
     public void closeBrowser() {
-        // TODO
-        //  close the browser
+        if (driver != null) {
+            driver.quit();
+        }
     }
 
     // FEATURE 1: INITIAL PAGE LOAD
 
     @Test
     public void firstTimePageLoad() throws Exception {
-        // TODO:
-        //  verify page displays title "Fitness Challenge"
-        //  verify 10 participants are displayed in the list
-        //  verify default participants include:
-        //   Mike Kid, Jill Watson, Jane Doe, John Smith, Sarah Johnson, Carlos Garcia, Emily Chen, David Brown, Maria Rodriguez, Alex Taylor
-        //  verify all participants display their initial step counts
-        //   Mike Kid: 8,500,
-        //   Jill Watson: 12,000,
-        //   Jane Doe: 6,500,
-        //   John Smith: 15,000,
-        //   Sarah Johnson: 9,800,
-        //   Carlos Garcia: 11,200,
-        //   Emily Chen: 7,300,
-        //   David Brown: 13,500,
-        //   Maria Rodriguez: 10,500,
-        //   Alex Taylor: 8,900
-        //  verify "Add Steps" and "Reset List" buttons are visible (appear twice - top and bottom)
+        // verify page displays title "Fitness Challenge"
+        assertEquals("Fitness Challenge", page.getPageTitle());
+
+        // verify 10 participants are displayed in the list
+        assertEquals(10, page.getParticipantCount());
+
+        // verify default participants include the specified names and step counts
+        List<Map<String, String>> participants = page.getParticipants();
+        Map<String, String> expectedSteps = Map.of(
+            "Mike Kid", "8,500",
+            "Jill Watson", "12,000",
+            "Jane Doe", "6,500",
+            "John Smith", "15,000",
+            "Sarah Johnson", "9,800",
+            "Carlos Garcia", "11,200",
+            "Emily Chen", "7,300",
+            "David Brown", "13,500",
+            "Maria Rodriguez", "10,500",
+            "Alex Taylor", "8,900"
+        );
+
+        assertEquals(10, participants.size());
+        for (Map<String, String> participant : participants) {
+            String name = participant.get("name");
+            String steps = participant.get("steps");
+            assertTrue(expectedSteps.containsKey(name), "Participant " + name + " not found in expected list");
+            assertEquals(expectedSteps.get(name), steps, "Steps for " + name + " do not match expected value");
+        }
+
+        // verify "Add Steps" and "Reset List" buttons are visible (appear twice - top and bottom)
+        assertTrue(page.isAddStepsTopDisplayed(), "Add Steps top button should be displayed");
+        assertTrue(page.isAddStepsBottomDisplayed(), "Add Steps bottom button should be displayed");
+        assertTrue(page.isResetTopDisplayed(), "Reset List top button should be displayed");
+        assertTrue(page.isResetBottomDisplayed(), "Reset List bottom button should be displayed");
     }
 
     // FEATURE 2: PARTICIPANT DISPLAY AND RANKING
