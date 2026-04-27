@@ -4,21 +4,22 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.openqa.selenium.WebDriver;
+import selenium.utility.WebDriverManager;
 
 public class Task2 {
     WebDriver driver;
 
     @BeforeEach
     public void openPage() {
-        // TODO
-        //  initialize the driver
-        //  open page https://janisdzalbe.github.io/example-site/tasks/fitness_challenge
+        driver = WebDriverManager.initializeChromeDriver();
+        driver.navigate().to("https://janisdzalbe.github.io/example-site/tasks/fitness_challenge");
     }
 
     @AfterEach
     public void closeBrowser() {
-        // TODO
-        //  close the browser
+        if (driver != null) {
+            driver.quit();
+        }
     }
 
     // FEATURE 1: INITIAL PAGE LOAD
