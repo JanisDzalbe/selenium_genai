@@ -3,21 +3,14 @@ package selenium.tasks;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.openqa.selenium.By;
-import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.WebElement;
 import org.openqa.selenium.edge.EdgeDriver;
 import org.openqa.selenium.firefox.FirefoxDriver;
-import org.openqa.selenium.support.ui.ExpectedConditions;
-import org.openqa.selenium.support.ui.Select;
-import org.openqa.selenium.support.ui.WebDriverWait;
+import selenium.pages.FitnessChallengePage;
 import selenium.utility.WebDriverUtility;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.time.Duration;
-import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
@@ -26,9 +19,6 @@ import java.util.Map;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class Task2 {
-    private static final String FITNESS_URL =
-            "https://janisdzalbe.github.io/example-site/tasks/fitness_challenge";
-    private static final Duration WAIT_TIMEOUT = Duration.ofSeconds(10);
     private static final List<String> DEFAULT_NAMES = List.of(
             "Mike Kid", "Jill Watson", "Jane Doe", "John Smith", "Sarah Johnson",
             "Carlos Garcia", "Emily Chen", "David Brown", "Maria Rodriguez", "Alex Taylor"
@@ -40,7 +30,7 @@ public class Task2 {
     );
 
     WebDriver driver;
-    private WebDriverWait wait;
+    private FitnessChallengePage fitnessChallengePage;
 
     @BeforeEach
     public void openPage() {
@@ -72,190 +62,91 @@ public class Task2 {
     }
 
     private void openFitnessPage() {
-        wait = new WebDriverWait(driver, WAIT_TIMEOUT);
-        driver.manage().window().maximize();
-        driver.get(FITNESS_URL);
-        waitForParticipants();
-    }
-
-    private void waitForParticipants() {
-        wait.until(ExpectedConditions.numberOfElementsToBe(
-                By.cssSelector("#participantsList > div > li"), 10));
-    }
-
-    private List<WebElement> participantRows() {
-        return driver.findElements(By.cssSelector("#participantsList > div > li"));
-    }
-
-    private List<String> displayedParticipantNames() {
-        List<String> names = new ArrayList<>();
-        for (WebElement row : participantRows()) {
-            names.add(row.findElement(By.className("participant-name")).getText().trim());
-        }
-        return names;
-    }
-
-    private WebElement participantRow(String name) {
-        return wait.until(driver -> {
-            for (WebElement row : participantRows()) {
-                try {
-                    String participantName = row
-                            .findElement(By.className("participant-name"))
-                            .getText()
-                            .trim();
-
-                    if (participantName.equals(name)) {
-                        return row;
-                    }
-                } catch (org.openqa.selenium.StaleElementReferenceException ignored) {
-                    // The list changed. Try again.
-                }
-            }
-            return null;
-        });
-    }
-
-    private long displayedStepCount(WebElement row) {
-        String text = row.findElement(By.className("participant-steps")).getText();
-        return Long.parseLong(text.replaceAll("[^0-9]", ""));
-    }
-
-    private long displayedStepCount(String name) {
-        return displayedStepCount(participantRow(name));
-    }
-
-    private Map<String, Long> displayedStepCounts() {
-        Map<String, Long> counts = new LinkedHashMap<>();
-        for (WebElement row : participantRows()) {
-            String name = row.findElement(By.className("participant-name")).getText().trim();
-            counts.put(name, displayedStepCount(row));
-        }
-        return counts;
-    }
-
-    private WebElement pageButton(String id, int position) {
-        List<WebElement> buttons = driver.findElements(By.id(id));
-        assertEquals(2, buttons.size(), id + " should appear at the top and bottom of the page");
-        return buttons.get(position);
-    }
-
-    private void openAddStepsModal(int buttonPosition) {
-        WebElement button = pageButton("addStepsBtn", buttonPosition);
-        if (buttonPosition == 1) {
-            ((JavascriptExecutor) driver).executeScript("arguments[0].scrollIntoView(true);", button);
-        }
-        wait.until(ExpectedConditions.elementToBeClickable(button)).click();
-        wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("addStepsModal")));
-    }
-
-    private void assertModalContents() {
-        WebElement modal = driver.findElement(By.id("addStepsModal"));
-        assertTrue(modal.isDisplayed());
-        assertEquals("Add Steps to Participant",
-                modal.findElement(By.tagName("h3")).getText().trim());
-
-        WebElement dropdown = modal.findElement(By.id("participant_select"));
-        Select participants = new Select(dropdown);
-        List<String> options = participants.getOptions().stream()
-                .map(option -> option.getText().trim())
-                .toList();
-        assertEquals(11, options.size());
-        assertEquals("Choose participant", options.get(0));
-        assertEquals(DEFAULT_NAMES, options.subList(1, options.size()));
-
-        WebElement stepsInput = modal.findElement(By.id("steps_input"));
-        assertEquals("number", stepsInput.getAttribute("type"));
-        assertTrue(stepsInput.isDisplayed());
-        assertTrue(modal.findElement(By.id("modal_add_steps_button")).isDisplayed());
-        assertEquals("Add Steps",
-                modal.findElement(By.id("modal_add_steps_button")).getText().trim());
-
-        WebElement closeButton = modal.findElement(By.cssSelector(".w3-closebtn[title='Close Modal']"));
-        assertTrue(closeButton.isDisplayed());
-        assertTrue(closeButton.getAttribute("class").contains("w3-display-topright"));
-        assertEquals("×", closeButton.getText().trim());
-    }
-
-    private void selectParticipantAndEnterSteps(String participant, String steps) {
-        new Select(driver.findElement(By.id("participant_select"))).selectByVisibleText(participant);
-        WebElement stepsInput = driver.findElement(By.id("steps_input"));
-        stepsInput.clear();
-        stepsInput.sendKeys(steps);
-    }
-
-    private void submitAndAcceptAlert(String expectedText) {
-        driver.findElement(By.id("modal_add_steps_button")).click();
-        org.openqa.selenium.Alert alert = wait.until(ExpectedConditions.alertIsPresent());
-        assertEquals(expectedText, alert.getText());
-        alert.accept();
-        wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("addStepsModal")));
+        fitnessChallengePage = new FitnessChallengePage(driver);
+        fitnessChallengePage.open();
     }
 
     private void addSteps(String participant, String steps) {
         openAddStepsModal(0);
-        selectParticipantAndEnterSteps(participant, steps);
-        driver.findElement(By.id("modal_add_steps_button")).click();
-        wait.until(ExpectedConditions.invisibilityOfElementLocated(By.id("addStepsModal")));
-        waitForParticipants();
+        fitnessChallengePage.selectParticipant(participant);
+        fitnessChallengePage.enterSteps(steps);
+        fitnessChallengePage.submitValidSteps();
+    }
+
+    private void openAddStepsModal(int buttonPosition) {
+        assertEquals(2, fitnessChallengePage.getAddStepsButtonCount(),
+                "addStepsBtn should appear at the top and bottom of the page");
+        fitnessChallengePage.openAddStepsModal(buttonPosition);
     }
 
     private void assertDefaultParticipants() {
-        assertEquals(10, participantRows().size());
-        assertEquals(DEFAULT_STEPS, displayedStepCounts());
+        assertEquals(10, fitnessChallengePage.getParticipantCount());
+        assertEquals(DEFAULT_STEPS, fitnessChallengePage.getStepCounts());
     }
 
     private void assertDefaultRankingAndTrophies() {
-        assertEquals(DEFAULT_RANKING, displayedParticipantNames());
+        assertEquals(DEFAULT_RANKING, fitnessChallengePage.getParticipantNames());
         assertTrophy(0, "rgb(255, 215, 0)");
         assertTrophy(1, "rgb(192, 192, 192)");
         assertTrophy(2, "rgb(205, 127, 50)");
-        for (int i = 3; i < participantRows().size(); i++) {
-            assertTrue(participantRows().get(i).findElements(By.cssSelector("i.fa.fa-trophy")).isEmpty(),
+        for (int i = 3; i < fitnessChallengePage.getParticipantCount(); i++) {
+            assertFalse(fitnessChallengePage.hasTrophyAtRank(i),
                     "Participant ranked " + (i + 1) + " should not have a trophy");
         }
     }
 
     private void assertTrophy(int position, String expectedColor) {
-        WebElement trophy = participantRows().get(position)
-                .findElement(By.cssSelector("i.fa.fa-trophy"));
-
-        String actualColor = trophy.getCssValue("color")
-                .replace("rgba(", "rgb(")
-                .replace(", 1)", ")");
-
-        assertEquals(expectedColor, actualColor);
+        assertEquals(expectedColor, fitnessChallengePage.getTrophyColorAtRank(position));
     }
 
     private void resetUsingButton(int position) {
-        WebElement previousFirstRow = participantRows().get(0);
-        WebElement resetButton = pageButton("resetBtn", position);
-        if (position == 1) {
-            ((JavascriptExecutor) driver).executeScript("arguments[0].scrollIntoView(true);", resetButton);
-        }
-        wait.until(ExpectedConditions.elementToBeClickable(resetButton)).click();
-        wait.until(ExpectedConditions.stalenessOf(previousFirstRow));
-        waitForParticipants();
+        assertEquals(2, fitnessChallengePage.getResetButtonCount(),
+                "resetBtn should appear at the top and bottom of the page");
+        fitnessChallengePage.resetParticipantList(position);
         assertDefaultParticipants();
         assertDefaultRankingAndTrophies();
     }
 
     private void assertAlertForNoParticipant() {
         openAddStepsModal(0);
-        driver.findElement(By.id("steps_input")).sendKeys("1000");
+        fitnessChallengePage.appendSteps("1000");
         submitAndAcceptAlert("Please select a participant");
-        assertTrue(driver.findElement(By.id("addStepsModal")).isDisplayed());
+        assertTrue(fitnessChallengePage.isAddStepsModalDisplayed());
+    }
+
+    private void submitAndAcceptAlert(String expectedText) {
+        assertEquals(expectedText, fitnessChallengePage.submitStepsAndGetAlertText());
+        fitnessChallengePage.acceptAlertAndWaitForModal();
+    }
+
+    private void assertModalContents() {
+        assertTrue(fitnessChallengePage.isAddStepsModalDisplayed());
+        assertEquals("Add Steps to Participant", fitnessChallengePage.getModalHeading());
+
+        List<String> options = fitnessChallengePage.getParticipantOptions();
+        assertEquals(11, options.size());
+        assertEquals("Choose participant", options.get(0));
+        assertEquals(DEFAULT_NAMES, options.subList(1, options.size()));
+
+        assertEquals("number", fitnessChallengePage.getStepsInputType());
+        assertTrue(fitnessChallengePage.isStepsInputDisplayed());
+        assertTrue(fitnessChallengePage.isAddStepsSubmitButtonDisplayed());
+        assertEquals("Add Steps", fitnessChallengePage.getAddStepsSubmitButtonText());
+
+        assertTrue(fitnessChallengePage.isModalCloseButtonDisplayed());
+        assertTrue(fitnessChallengePage.getModalCloseButtonClass().contains("w3-display-topright"));
+        assertEquals("×", fitnessChallengePage.getModalCloseButtonText());
     }
 
     private void runCrossBrowserScenarios() {
-        long previousSteps = displayedStepCount("Mike Kid");
+        long previousSteps = fitnessChallengePage.getStepCount("Mike Kid");
         addSteps("Mike Kid", "1000");
-        assertEquals(previousSteps + 1_000, displayedStepCount("Mike Kid"));
-        assertTrue(displayedParticipantNames().indexOf("Mike Kid")
-                > displayedParticipantNames().indexOf("Jill Watson"));
+        assertEquals(previousSteps + 1_000, fitnessChallengePage.getStepCount("Mike Kid"));
+        assertTrue(fitnessChallengePage.getParticipantNames().indexOf("Mike Kid")
+                > fitnessChallengePage.getParticipantNames().indexOf("Jill Watson"));
 
         assertAlertForNoParticipant();
-        driver.findElement(By.cssSelector("#addStepsModal .w3-closebtn")).click();
-        wait.until(ExpectedConditions.invisibilityOfElementLocated(By.id("addStepsModal")));
+        fitnessChallengePage.closeAddStepsModal();
         resetUsingButton(0);
     }
 
@@ -291,18 +182,18 @@ public class Task2 {
 
     @Test
     public void firstTimePageLoad() {
-        assertEquals("Fitness Challenge", driver.findElement(By.tagName("h2")).getText().trim());
+        assertEquals("Fitness Challenge", fitnessChallengePage.getHeading());
         assertDefaultParticipants();
-        assertEquals(DEFAULT_NAMES.size(), displayedStepCounts().size());
-        assertEquals(2, driver.findElements(By.id("addStepsBtn")).size());
-        assertEquals(2, driver.findElements(By.id("resetBtn")).size());
-        for (WebElement button : driver.findElements(By.id("addStepsBtn"))) {
-            assertTrue(button.isDisplayed());
-            assertEquals("Add Steps", button.getText().trim());
+        assertEquals(DEFAULT_NAMES.size(), fitnessChallengePage.getStepCounts().size());
+        assertEquals(2, fitnessChallengePage.getAddStepsButtonCount());
+        assertEquals(2, fitnessChallengePage.getResetButtonCount());
+        for (int i = 0; i < fitnessChallengePage.getAddStepsButtonCount(); i++) {
+            assertTrue(fitnessChallengePage.isPageButtonDisplayed("addStepsBtn", i));
+            assertEquals("Add Steps", fitnessChallengePage.getPageButtonText("addStepsBtn", i));
         }
-        for (WebElement button : driver.findElements(By.id("resetBtn"))) {
-            assertTrue(button.isDisplayed());
-            assertEquals("Reset List", button.getText().trim());
+        for (int i = 0; i < fitnessChallengePage.getResetButtonCount(); i++) {
+            assertTrue(fitnessChallengePage.isPageButtonDisplayed("resetBtn", i));
+            assertEquals("Reset List", fitnessChallengePage.getPageButtonText("resetBtn", i));
         }
     }
 
@@ -310,8 +201,7 @@ public class Task2 {
 
     @Test
     public void rankingOrder() {
-        List<WebElement> rows = participantRows();
-        List<Long> steps = rows.stream().map(this::displayedStepCount).toList();
+        List<Long> steps = fitnessChallengePage.getRankedStepCounts();
         for (int i = 0; i < steps.size() - 1; i++) {
             assertTrue(steps.get(i) >= steps.get(i + 1),
                     "Steps should be descending at ranks " + (i + 1) + " and " + (i + 2));
@@ -340,9 +230,8 @@ public class Task2 {
     @Test
     public void closeModalWithCloseButton() {
         openAddStepsModal(0);
-        driver.findElement(By.cssSelector("#addStepsModal .w3-closebtn")).click();
-        wait.until(ExpectedConditions.invisibilityOfElementLocated(By.id("addStepsModal")));
-        assertTrue(driver.findElement(By.tagName("h2")).isDisplayed());
+        fitnessChallengePage.closeAddStepsModal();
+        assertTrue(fitnessChallengePage.isHeadingDisplayed());
         assertDefaultParticipants();
     }
 
@@ -350,28 +239,29 @@ public class Task2 {
 
     @Test
     public void addValidStepsToParticipant() {
-        long previousSteps = displayedStepCount("Mike Kid");
+        long previousSteps = fitnessChallengePage.getStepCount("Mike Kid");
         addSteps("Mike Kid", "1000");
-        assertEquals(previousSteps + 1_000, displayedStepCount("Mike Kid"));
-        assertTrue(displayedParticipantNames().indexOf("Mike Kid")
-                > displayedParticipantNames().indexOf("Sarah Johnson"));
+        assertEquals(previousSteps + 1_000, fitnessChallengePage.getStepCount("Mike Kid"));
+        assertTrue(fitnessChallengePage.getParticipantNames().indexOf("Mike Kid")
+                > fitnessChallengePage.getParticipantNames().indexOf("Sarah Johnson"));
         rankingOrder();
     }
 
     @Test
     public void addZeroSteps() {
         openAddStepsModal(0);
-        selectParticipantAndEnterSteps("Mike Kid", "0");
+        fitnessChallengePage.selectParticipant("Mike Kid");
+        fitnessChallengePage.enterSteps("0");
         submitAndAcceptAlert("Please enter a valid number of steps");
-        assertTrue(driver.findElement(By.id("addStepsModal")).isDisplayed());
+        assertTrue(fitnessChallengePage.isAddStepsModalDisplayed());
     }
 
     @Test
     public void addLargeNumberOfSteps() {
-        long previousSteps = displayedStepCount("Mike Kid");
+        long previousSteps = fitnessChallengePage.getStepCount("Mike Kid");
         addSteps("Mike Kid", "999999");
-        assertEquals(previousSteps + 999_999, displayedStepCount("Mike Kid"));
-        assertEquals("Mike Kid", displayedParticipantNames().get(0));
+        assertEquals(previousSteps + 999_999, fitnessChallengePage.getStepCount("Mike Kid"));
+        assertEquals("Mike Kid", fitnessChallengePage.getParticipantNames().get(0));
     }
 
     // FEATURE 5: FORM VALIDATION
@@ -384,27 +274,27 @@ public class Task2 {
     @Test
     public void submitWithoutEnteringSteps() {
         openAddStepsModal(0);
-        new Select(driver.findElement(By.id("participant_select"))).selectByVisibleText("Mike Kid");
-        driver.findElement(By.id("steps_input")).sendKeys("0");
+        fitnessChallengePage.selectParticipant("Mike Kid");
+        fitnessChallengePage.appendSteps("0");
         submitAndAcceptAlert("Please enter a valid number of steps");
-        assertTrue(driver.findElement(By.id("addStepsModal")).isDisplayed());
+        assertTrue(fitnessChallengePage.isAddStepsModalDisplayed());
     }
 
     @Test
     public void submitWithNegativeSteps() {
         openAddStepsModal(0);
-        selectParticipantAndEnterSteps("Mike Kid", "-500");
+        fitnessChallengePage.selectParticipant("Mike Kid");
+        fitnessChallengePage.enterSteps("-500");
         submitAndAcceptAlert("Please enter a valid number of steps");
-        assertTrue(driver.findElement(By.id("addStepsModal")).isDisplayed());
+        assertTrue(fitnessChallengePage.isAddStepsModalDisplayed());
     }
 
     @Test
     public void submitWithNonNumericInput() {
         openAddStepsModal(0);
-        new Select(driver.findElement(By.id("participant_select"))).selectByVisibleText("Mike Kid");
-        WebElement stepsInput = driver.findElement(By.id("steps_input"));
-        stepsInput.sendKeys("abc");
-        String value = stepsInput.getAttribute("value");
+        fitnessChallengePage.selectParticipant("Mike Kid");
+        fitnessChallengePage.appendSteps("abc");
+        String value = fitnessChallengePage.getStepsInputValue();
         assertFalse(value.matches(".*[A-Za-z].*"), "Number input must reject alphabetic characters");
     }
 
@@ -428,27 +318,24 @@ public class Task2 {
 
     @Test
     public void maximumIntegerValue() {
-        long previousSteps = displayedStepCount("Mike Kid");
+        long previousSteps = fitnessChallengePage.getStepCount("Mike Kid");
         openAddStepsModal(0);
-        selectParticipantAndEnterSteps("Mike Kid", "9007199254740991");
-        driver.findElement(By.id("modal_add_steps_button")).click();
-        wait.until(ExpectedConditions.invisibilityOfElementLocated(By.id("addStepsModal")));
-        waitForParticipants();
+        fitnessChallengePage.selectParticipant("Mike Kid");
+        fitnessChallengePage.enterSteps("9007199254740991");
+        fitnessChallengePage.submitValidSteps();
 
-        String expectedDisplay = (String) ((JavascriptExecutor) driver).executeScript(
-                "return (Number(arguments[0]) + Number(arguments[1])).toLocaleString();",
-                previousSteps, "9007199254740991");
-        assertEquals(expectedDisplay + " steps",
-                participantRow("Mike Kid").findElement(By.className("participant-steps")).getText());
-        assertEquals("Mike Kid", displayedParticipantNames().get(0));
+        String expectedDisplay = fitnessChallengePage.formatStepTotal(previousSteps, "9007199254740991");
+        assertEquals(expectedDisplay + " steps", fitnessChallengePage.getStepCountText("Mike Kid"));
+        assertEquals("Mike Kid", fitnessChallengePage.getParticipantNames().get(0));
     }
 
     @Test
     public void decimalStepValues() {
         openAddStepsModal(0);
-        selectParticipantAndEnterSteps("Mike Kid", "100.5");
+        fitnessChallengePage.selectParticipant("Mike Kid");
+        fitnessChallengePage.enterSteps("100.5");
         submitAndAcceptAlert("Please enter a valid number of steps");
-        assertTrue(driver.findElement(By.id("addStepsModal")).isDisplayed());
+        assertTrue(fitnessChallengePage.isAddStepsModalDisplayed());
     }
 
     // FEATURE 8: CROSS-BROWSER COMPATIBILITY
@@ -458,7 +345,7 @@ public class Task2 {
         switchToBrowser("Chrome");
         runCrossBrowserScenarios();
     }
-    
+
     @Test
     public void firefoxBrowser() {
         switchToBrowser("Firefox");
