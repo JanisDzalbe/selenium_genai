@@ -176,8 +176,13 @@ public class Task2 {
         openModal();
         new Select(driver.findElement(By.id("participant_select")))
                 .selectByVisibleText("Mike Kid");
-        driver.findElement(By.id("steps_input")).sendKeys("0");
-        driver.findElement(By.id("modal_add_steps_button")).click();
+        WebElement stepsInput = wait.until(
+                ExpectedConditions.visibilityOfElementLocated(By.id("steps_input")));
+        stepsInput.clear();
+        stepsInput.sendKeys("0");
+        assertEquals("0", stepsInput.getAttribute("value"));
+        wait.until(ExpectedConditions.elementToBeClickable(
+                By.id("modal_add_steps_button"))).click();
         assertAlert("Please enter a valid number of steps");
         assertModalOpen();
     }
@@ -352,7 +357,9 @@ public class Task2 {
         assertEquals("Add Steps to Participant",
                 modal.findElement(By.cssSelector("h3")).getText());
         assertTrue(modal.findElement(By.id("participant_select")).isDisplayed());
-        assertTrue(modal.findElement(By.id("steps_input")).isDisplayed());
+        WebElement stepsInput = wait.until(
+                ExpectedConditions.visibilityOfElementLocated(By.id("steps_input")));
+        assertEquals("number", stepsInput.getAttribute("type"));
         assertTrue(modal.findElement(By.id("modal_add_steps_button")).isDisplayed());
         assertTrue(modal.findElement(By.cssSelector("span.w3-closebtn")).isDisplayed());
         assertEquals("×",
