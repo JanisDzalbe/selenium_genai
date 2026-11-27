@@ -32,7 +32,7 @@ Use custom utility function to initialize WebDriver instances based on OS.
 - [ ] Download and manage WebDriver executables in `lib/` directory
 - [ ] Implement sample test cases in `src/test/java/selenium/tasks` package using JUnit 5
 - [ ] Implement features in `src/test/resources/features/` directory using Cucumber
-- [ ] Update tests to use Page Object Model pattern in `src/test/java/selenium/pages/` package
+- [x] Update tests to use Page Object Model pattern in `src/test/java/selenium/pages/` package
 
 ## Copilot
 [Quickstart for GitHub Copilot](https://docs.github.com/en/copilot/get-started/quickstart)
