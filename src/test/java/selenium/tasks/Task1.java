@@ -3,22 +3,21 @@ package selenium.tasks;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.WebElement;
-import org.openqa.selenium.support.ui.Select;
-import org.openqa.selenium.support.ui.WebDriverWait;
+import selenium.pages.FeedbackPage;
+import selenium.pages.FeedbackSummaryPage;
+import selenium.pages.FeedbackThankYouPage;
 import selenium.utility.WebDriverUtils;
 
 import java.time.Duration;
+import java.util.Arrays;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 public class Task1 {
-    WebDriver driver;
-    private static final String PAGE_URL =
-            "https://janisdzalbe.github.io/example-site/tasks/provide_feedback";
+    private WebDriver driver;
+    private FeedbackPage feedbackPage;
     private static final Duration TIMEOUT = Duration.ofSeconds(10);
 
     @BeforeEach
@@ -26,9 +25,7 @@ public class Task1 {
         driver = WebDriverUtils.createChromeDriver();
         driver.manage().timeouts().implicitlyWait(TIMEOUT);
         driver.manage().window().maximize();
-        driver.get(PAGE_URL);
-        new WebDriverWait(driver, TIMEOUT).until(
-                d -> d.findElement(By.id("fb_name")).isDisplayed());
+        feedbackPage = new FeedbackPage(driver).open();
     }
 
     @AfterEach
@@ -38,157 +35,77 @@ public class Task1 {
         }
     }
 
-    private WebElement sendButton() {
-        return driver.findElement(By.cssSelector("button[type='submit']"));
-    }
-
-    private void submitFeedback(String name, String age, String language, String gender, String option, String comment) {
-        if (name != null) {
-            driver.findElement(By.id("fb_name")).clear();
-            driver.findElement(By.id("fb_name")).sendKeys(name);
-        }
-        if (age != null) {
-            driver.findElement(By.id("fb_age")).clear();
-            driver.findElement(By.id("fb_age")).sendKeys(age);
-        }
-        if (language != null) {
-            List<String> languages = List.of(language.split(","));
-            for (WebElement checkbox : driver.findElements(By.name("language"))) {
-                if (languages.contains(checkbox.getAttribute("value")) && !checkbox.isSelected()) {
-                    checkbox.click();
-                }
-            }
-        }
-        if (gender != null) {
-            for (WebElement radio : driver.findElements(By.name("gender"))) {
-                if (!radio.isEnabled()) {
-                    continue;
-                }
-                if (radio.getAttribute("value").equals(gender)) {
-                    radio.click();
-                }
-            }
-        }
-        if (option != null) {
-            new Select(driver.findElement(By.id("like_us"))).selectByVisibleText(option);
-        }
-        if (comment != null) {
-            WebElement commentField = driver.findElement(By.cssSelector("textarea[name='comment']"));
-            commentField.clear();
-            commentField.sendKeys(comment);
-        }
-        sendButton().click();
-        new WebDriverWait(driver, TIMEOUT).until(
-                d -> d.getCurrentUrl().contains("check_feedback.html"));
-    }
-
-    private void assertSummaryValue(String id, String expected) {
-        String actual = new WebDriverWait(driver, TIMEOUT)
-                .until(d -> d.findElement(By.id(id)).getText());
-        if ("language".equals(id) && actual != null) {
-            assertTrue(actual.contains(expected),
-                    "Expected language summary to contain " + expected + " but was " + actual);
-        } else {
-            assertEquals(expected, actual);
-        }
-    }
-
-    private void fillAllFields() {
-        submitFeedback("Janis", "30", "English,French", "male", "Good",
+    private FeedbackSummaryPage fillAllFields() {
+        return feedbackPage.submitFeedback("Janis", "30", "English,French", "male", "Good",
                 "The service is excellent");
     }
 
     @Test
-    public void initialFeedbackPage() throws Exception {
-        assertEquals("", driver.findElement(By.id("fb_name")).getAttribute("value"));
-        assertEquals("", driver.findElement(By.id("fb_age")).getAttribute("value"));
+    public void initialFeedbackPage() {
+        assertEquals("", feedbackPage.getName());
+        assertEquals("", feedbackPage.getAge());
+        assertTrue(feedbackPage.getSelectedLanguages().isEmpty());
+        assertTrue(feedbackPage.getSelectedEnabledGenders().isEmpty());
 
-        for (WebElement checkbox : driver.findElements(By.name("language"))) {
-            assertFalse(checkbox.isSelected());
-        }
-        for (WebElement radio : driver.findElements(By.name("gender"))) {
-            if (radio.isEnabled()) {
-                assertFalse(radio.isSelected());
-            }
-        }
+        assertEquals(List.of(""), feedbackPage.getDisabledGenderValues());
+        assertEquals(List.of(""), feedbackPage.getSelectedDisabledGenderValues());
 
-        List<WebElement> disabledGenderRadios =
-                driver.findElements(By.cssSelector("input[name='gender'][disabled]"));
-        assertEquals(1, disabledGenderRadios.size());
-        assertTrue(disabledGenderRadios.get(0).isSelected());
-        assertEquals("", disabledGenderRadios.get(0).getAttribute("value"));
+        assertEquals("Choose your option", feedbackPage.getSelectedLikeUsOption());
+        assertEquals("", feedbackPage.getComment());
 
-        Select likeUs = new Select(driver.findElement(By.id("like_us")));
-        assertEquals("Choose your option", likeUs.getFirstSelectedOption().getText());
-        assertEquals("", driver.findElement(By.cssSelector("textarea[name='comment']")).getAttribute("value"));
-
-        WebElement button = sendButton();
-        assertTrue(button.getAttribute("class").contains("w3-blue"));
-        String textColor = button.getCssValue("color").replace(" ", "");
+        assertTrue(feedbackPage.getSubmitButtonClass().contains("w3-blue"));
+        String textColor = feedbackPage.getSubmitButtonTextColor();
         assertTrue(textColor.matches("rgba?\\(255,255,255(?:,1)?\\)"),
                 "Send button text is not white: " + textColor);
     }
 
     @Test
-    public void emptyFeedbackPage() throws Exception {
-        sendButton().click();
-        new WebDriverWait(driver, TIMEOUT).until(
-                d -> d.getCurrentUrl().contains("check_feedback.html"));
-
-        for (String id : List.of("name", "age", "language", "gender", "option", "comment")) {
-            String value = driver.findElement(By.id(id)).getText();
+    public void emptyFeedbackPage() {
+        FeedbackSummaryPage summaryPage = feedbackPage.submitFeedback(null, null, null, null, null, null);
+        for (String value : Arrays.asList(summaryPage.getName(), summaryPage.getAge(), summaryPage.getLanguage(),
+                summaryPage.getGender(), summaryPage.getOption(), summaryPage.getComment())) {
             assertTrue(value == null || value.isEmpty() || "null".equals(value),
-                    "Expected " + id + " to be empty or null, but was " + value);
+                    "Expected summary value to be empty or null, but was " + value);
         }
     }
 
     @Test
-    public void notEmptyFeedbackPage() throws Exception {
-        fillAllFields();
-        assertSummaryValue("name", "Janis");
-        assertSummaryValue("age", "30");
-        assertSummaryValue("language", "English");
-        assertSummaryValue("gender", "male");
-        assertSummaryValue("option", "Good");
-        assertSummaryValue("comment", "The service is excellent");
+    public void notEmptyFeedbackPage() {
+        FeedbackSummaryPage summaryPage = fillAllFields();
+        assertEquals("Janis", summaryPage.getName());
+        assertEquals("30", summaryPage.getAge());
+        assertTrue(summaryPage.getLanguage().contains("English"),
+                "Expected language summary to contain English but was " + summaryPage.getLanguage());
+        assertEquals("male", summaryPage.getGender());
+        assertEquals("Good", summaryPage.getOption());
+        assertEquals("The service is excellent", summaryPage.getComment());
     }
 
     @Test
-    public void yesOnWithNameFeedbackPage() throws Exception {
-        submitFeedback("Janis", null, null, null, null, null);
-        driver.findElement(By.xpath("//button[normalize-space()='Yes']")).click();
-        new WebDriverWait(driver, TIMEOUT).until(
-                d -> d.getCurrentUrl().contains("thank_you_for_feedback.html"));
+    public void yesOnWithNameFeedbackPage() {
+        FeedbackSummaryPage summaryPage =
+                feedbackPage.submitFeedback("Janis", null, null, null, null, null);
+        FeedbackThankYouPage thankYouPage = summaryPage.confirm();
         assertEquals("Thank you, Janis, for your feedback!",
-                driver.findElement(By.id("message")).getText());
+                thankYouPage.getMessage());
     }
 
     @Test
-    public void yesOnWithoutNameFeedbackPage() throws Exception {
-        sendButton().click();
-        new WebDriverWait(driver, TIMEOUT).until(
-                d -> d.getCurrentUrl().contains("check_feedback.html"));
-        driver.findElement(By.xpath("//button[normalize-space()='Yes']")).click();
-        new WebDriverWait(driver, TIMEOUT).until(
-                d -> d.getCurrentUrl().contains("thank_you_for_feedback.html"));
+    public void yesOnWithoutNameFeedbackPage() {
+        FeedbackSummaryPage summaryPage = feedbackPage.submitFeedback(null, null, null, null, null, null);
+        FeedbackThankYouPage thankYouPage = summaryPage.confirm();
         assertEquals("Thank you for your feedback!",
-                driver.findElement(By.id("message")).getText());
+                thankYouPage.getMessage());
     }
 
     @Test
-    public void noOnFeedbackPage() throws Exception {
-        fillAllFields();
-        driver.findElement(By.xpath("//button[normalize-space()='No']")).click();
-        new WebDriverWait(driver, TIMEOUT).until(
-                d -> d.getCurrentUrl().contains("provide_feedback"));
-
-        assertEquals("Janis", driver.findElement(By.id("fb_name")).getAttribute("value"));
-        assertEquals("30", driver.findElement(By.id("fb_age")).getAttribute("value"));
-        assertTrue(driver.findElement(By.cssSelector("input[name='language'][value='English']")).isSelected());
-        assertTrue(driver.findElement(By.cssSelector("input[name='gender'][value='male']")).isSelected());
-        assertEquals("Good",
-                new Select(driver.findElement(By.id("like_us"))).getFirstSelectedOption().getText());
-        assertEquals("The service is excellent",
-                driver.findElement(By.cssSelector("textarea[name='comment']")).getAttribute("value"));
+    public void noOnFeedbackPage() {
+        FeedbackPage returnedPage = fillAllFields().reject();
+        assertEquals("Janis", returnedPage.getName());
+        assertEquals("30", returnedPage.getAge());
+        assertTrue(returnedPage.getSelectedLanguages().contains("English"));
+        assertTrue(returnedPage.getSelectedEnabledGenders().contains("male"));
+        assertEquals("Good", returnedPage.getSelectedLikeUsOption());
+        assertEquals("The service is excellent", returnedPage.getComment());
     }
 }
