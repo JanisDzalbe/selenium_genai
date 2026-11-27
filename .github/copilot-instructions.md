@@ -10,9 +10,10 @@
 ## Test and browser setup
 - Use a Java 27 JDK (`JAVA_HOME` must point to it when running Maven); `pom.xml` configures Java release 27. The README documents `mvn test`. Maven dependencies cover Selenium, JUnit Jupiter/Vintage, JUnit 4, and Cucumber.
 - Browser drivers belong in `lib/`; `.gitignore` excludes `lib/chrome*`, `lib/gecko*`, and `lib/msedge*`. Do not add driver executables to commits. `selenium.utility.WebDriverUtility.createChromeDriver()` selects `chromedriver.exe` on Windows and `chromedriver` on Unix-like systems, sets `webdriver.chrome.driver`, and requires the executable to exist (and be executable on Unix).
-- The driver utility is not yet wired into the JUnit exercise skeletons or `Hooks.openBrowser()`, which still needs browser setup.
+- `Task1` creates its Chrome driver with `WebDriverUtility` and uses the `selenium.pages.FeedbackPage` page object for feedback-form locators, interactions, and waits.
+- Cucumber `Hooks.openBrowser()` creates a Chrome driver with `WebDriverUtility`; its static `Hooks.driver` is shared with the step definitions.
 - `FitnessChallenge8.feature` expects Chrome, Edge, and Firefox coverage; the local driver setup is not yet implemented for all three.
-- The README also mentions `selenium.pages`, but Page Object classes are not present yet. Follow that structure only if it is introduced.
+- `selenium.pages.FeedbackPage` is the Page Object Model example: keep browser locators and user-facing page operations there, leaving test methods to express assertions and scenarios.
 
 ## Existing patterns to preserve
 - JUnit exercises use per-test lifecycle methods (`@BeforeEach` / `@AfterEach`) and keep a `WebDriver` field on the test class; close the browser during teardown.
