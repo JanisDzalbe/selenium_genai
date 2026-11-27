@@ -42,3 +42,4 @@ target/
 lib/chrome*
 lib/gecko*
 lib/msedge*
+/GenAi.iml
