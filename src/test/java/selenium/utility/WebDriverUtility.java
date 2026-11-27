@@ -1,10 +1,14 @@
 package selenium.utility;
 
+import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.edge.EdgeDriver;
+import org.openqa.selenium.firefox.FirefoxDriver;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Locale;
 
 public final class WebDriverUtility {
     private static final String CHROME_DRIVER_PROPERTY = "webdriver.chrome.driver";
@@ -23,6 +27,15 @@ public final class WebDriverUtility {
 
         System.setProperty(CHROME_DRIVER_PROPERTY, driverPath.toAbsolutePath().toString());
         return new ChromeDriver();
+    }
+
+    public static WebDriver getDriver(String browser) {
+        return switch (browser.toLowerCase(Locale.ROOT)) {
+            case "chrome" -> getChromeDriver();
+            case "edge" -> new EdgeDriver();
+            case "firefox" -> new FirefoxDriver();
+            default -> throw new IllegalArgumentException("Unsupported browser: " + browser);
+        };
     }
 
     private static Path getConfiguredDriverPath() {

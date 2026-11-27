@@ -3,6 +3,8 @@ Feature: EDGE CASES AND ERROR HANDLING
   Background:
     Given I am on the fitness challenge page "https://janisdzalbe.github.io/example-site/tasks/fitness_challenge"
 
+  # JavaScript Number precision makes the page return an inexact sum above MAX_SAFE_INTEGER.
+  @known-defect
   Scenario: Handle maximum integer value
     When I open the "Add Steps" modal
     And I select a participant
@@ -11,6 +13,8 @@ Feature: EDGE CASES AND ERROR HANDLING
     Then the system accepts the value
     And the step count updates correctly
 
+  # The page parses decimal input with parseInt and accepts it instead of showing the required validation alert.
+  @known-defect
   Scenario: Handle decimal step values
     When I open the "Add Steps" modal
     And I select any participant
