@@ -3,21 +3,17 @@ package selenium.tasks;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.WebElement;
-import org.openqa.selenium.support.ui.Select;
-import org.openqa.selenium.support.ui.WebDriverWait;
+import selenium.pages.FeedbackPage;
+import selenium.pages.FeedbackReviewPage;
+import selenium.pages.FeedbackThankYouPage;
 import selenium.utility.ChromeDriverUtility;
-
-import java.time.Duration;
-import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 public class Task1 {
     WebDriver driver;
-    WebDriverWait wait;
+    FeedbackPage feedbackPage;
 
     @BeforeEach
     public void openPage() {
@@ -25,9 +21,8 @@ public class Task1 {
         //  initialize the driver
         //  open page https://janisdzalbe.github.io/example-site/tasks/provide_feedback
         driver = ChromeDriverUtility.createChromeDriver();
-        wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+        feedbackPage = new FeedbackPage(driver).open();
 //        driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(5));
-        driver.get("https://janisdzalbe.github.io/example-site/tasks/provide_feedback");
     }
 
     @AfterEach
@@ -46,25 +41,16 @@ public class Task1 {
         //  "Don't know" is selected in "Genre"
         //  "Choose your option" in "How do you like us?"
         //  check that the button send is blue with white letters
-        assertEquals("", driver.findElement(By.id("fb_name")).getAttribute("value"));
-        assertEquals("", driver.findElement(By.id("fb_age")).getAttribute("value"));
-        assertEquals("", driver.findElement(By.name("comment")).getAttribute("value"));
-
-        List<WebElement> languages = driver.findElements(By.cssSelector("input[name='language']"));
-        for (WebElement language : languages) {
-            assertFalse(language.isSelected());
-        }
-
-        WebElement dontKnow = driver.findElement(
-                By.cssSelector("input[name='gender'][disabled]"));
-        assertTrue(dontKnow.isSelected());
-
-        Select option = new Select(driver.findElement(By.id("like_us")));
-        assertEquals("Choose your option", option.getFirstSelectedOption().getText());
-
-        WebElement send = driver.findElement(By.cssSelector("button[type='submit']"));
-        assertTrue(send.getCssValue("background-color").matches("rgba?\\(33, ?150, ?243(?:, ?1)?\\)"));
-        assertTrue(send.getCssValue("color").matches("rgba?\\(255, ?255, ?255(?:, ?1)?\\)"));
+        assertEquals("", feedbackPage.getNameInputValue());
+        assertEquals("", feedbackPage.getAgeInputValue());
+        assertEquals("", feedbackPage.getCommentInputValue());
+        assertTrue(feedbackPage.areLanguagesUnselected());
+        assertTrue(feedbackPage.isDefaultGenderSelected());
+        assertEquals("Choose your option", feedbackPage.getSelectedLikeUsOption());
+        assertTrue(feedbackPage.getSubmitButtonBackgroundColor()
+                .matches("rgba?\\(33, ?150, ?243(?:, ?1)?\\)"));
+        assertTrue(feedbackPage.getSubmitButtonTextColor()
+                .matches("rgba?\\(255, ?255, ?255(?:, ?1)?\\)"));
     }
 
     @Test
@@ -72,15 +58,14 @@ public class Task1 {
         // TODO:
         //  click "Send" without entering any data
         //  check fields are empty or "null"
-        driver.findElement(By.cssSelector("button[type='submit']")).click();
-        wait.until(d -> d.getCurrentUrl().contains("check_feedback.html"));
+        FeedbackReviewPage reviewPage = feedbackPage.submit();
 
-        assertEmptyOrNull("name");
-        assertEmptyOrNull("age");
-        assertEmptyOrNull("language");
-        assertEmptyOrNull("gender");
-        assertEmptyOrNull("option");
-        assertEmptyOrNull("comment");
+        assertEmptyOrNull("name", reviewPage.getName());
+        assertEmptyOrNull("age", reviewPage.getAge());
+        assertEmptyOrNull("language", reviewPage.getLanguage());
+        assertEmptyOrNull("gender", reviewPage.getGender());
+        assertEmptyOrNull("option", reviewPage.getOption());
+        assertEmptyOrNull("comment", reviewPage.getComment());
     }
 
     @Test
@@ -88,16 +73,11 @@ public class Task1 {
         // TODO:
         //  fill the whole form, click "Send"
         //  check fields are filled correctly
-        fillFeedback("Janis", "30", "English", "male", "Good", "Great experience");
-        driver.findElement(By.cssSelector("button[type='submit']")).click();
-        wait.until(d -> d.getCurrentUrl().contains("check_feedback.html"));
+        FeedbackReviewPage reviewPage = feedbackPage
+                .fill("Janis", "30", "English", "male", "Good", "Great experience")
+                .submit();
 
-        assertEquals("Janis", driver.findElement(By.id("name")).getText());
-        assertEquals("30", driver.findElement(By.id("age")).getText());
-        assertEquals("English", driver.findElement(By.id("language")).getText());
-        assertEquals("male", driver.findElement(By.id("gender")).getText());
-        assertEquals("Good", driver.findElement(By.id("option")).getText());
-        assertEquals("Great experience", driver.findElement(By.id("comment")).getText());
+        assertFeedback(reviewPage);
     }
 
     @Test
@@ -107,15 +87,12 @@ public class Task1 {
         //  click "Send"
         //  click "Yes"
         //  check message text: "Thank you, NAME, for your feedback!"
-        driver.findElement(By.id("fb_name")).sendKeys("Janis");
-        driver.findElement(By.cssSelector("button[type='submit']")).click();
-        wait.until(d -> d.getCurrentUrl().contains("check_feedback.html"));
-        driver.findElement(By.xpath("//button[normalize-space()='Yes']")).click();
+        FeedbackThankYouPage thankYouPage = feedbackPage
+                .enterName("Janis")
+                .submit()
+                .confirm();
 
-        wait.until(d -> d.getCurrentUrl().contains("thank_you_for_feedback.html"));
-        wait.until(d -> !driver.findElement(By.id("message")).getText().isEmpty());
-        assertEquals("Thank you, Janis, for your feedback!",
-                driver.findElement(By.id("message")).getText());
+        assertEquals("Thank you, Janis, for your feedback!", thankYouPage.getMessage());
     }
 
     @Test
@@ -124,14 +101,9 @@ public class Task1 {
         //  click "Send" (without entering anything)
         //  click "Yes"
         //  check message text: "Thank you for your feedback!"
-        driver.findElement(By.cssSelector("button[type='submit']")).click();
-        wait.until(d -> d.getCurrentUrl().contains("check_feedback.html"));
-        driver.findElement(By.xpath("//button[normalize-space()='Yes']")).click();
+        FeedbackThankYouPage thankYouPage = feedbackPage.submit().confirm();
 
-        wait.until(d -> d.getCurrentUrl().contains("thank_you_for_feedback.html"));
-        wait.until(d -> !driver.findElement(By.id("message")).getText().isEmpty());
-        assertEquals("Thank you for your feedback!",
-                driver.findElement(By.id("message")).getText());
+        assertEquals("Thank you for your feedback!", thankYouPage.getMessage());
     }
 
     @Test
@@ -141,43 +113,33 @@ public class Task1 {
         //  click "Send"
         //  click "No"
         //  check fields are filled correctly
-        fillFeedback("Janis", "30", "English", "male", "Good", "Great experience");
-        driver.findElement(By.cssSelector("button[type='submit']")).click();
-        wait.until(d -> d.getCurrentUrl().contains("check_feedback.html"));
+        FeedbackReviewPage reviewPage = feedbackPage
+                .fill("Janis", "30", "English", "male", "Good", "Great experience")
+                .submit();
+        assertFeedback(reviewPage);
 
-        assertEquals("Janis", driver.findElement(By.id("name")).getText());
-        assertEquals("30", driver.findElement(By.id("age")).getText());
-        assertEquals("English", driver.findElement(By.id("language")).getText());
-        assertEquals("male", driver.findElement(By.id("gender")).getText());
-        assertEquals("Good", driver.findElement(By.id("option")).getText());
-        assertEquals("Great experience", driver.findElement(By.id("comment")).getText());
-
-        driver.findElement(By.xpath("//button[normalize-space()='No']")).click();
-        wait.until(d -> d.getCurrentUrl().contains("provide_feedback"));
-        assertEquals("Janis", driver.findElement(By.id("fb_name")).getAttribute("value"));
-        assertEquals("30", driver.findElement(By.id("fb_age")).getAttribute("value"));
-        assertTrue(driver.findElement(By.cssSelector("input[name='language'][value='English']")).isSelected());
-        assertTrue(driver.findElement(By.cssSelector("input[name='gender'][value='male']")).isSelected());
-        assertEquals("Good", new Select(driver.findElement(By.id("like_us")))
-                .getFirstSelectedOption().getText());
-        assertEquals("Great experience", driver.findElement(By.name("comment")).getAttribute("value"));
+        FeedbackPage returnedPage = reviewPage.edit();
+        assertEquals("Janis", returnedPage.getNameInputValue());
+        assertEquals("30", returnedPage.getAgeInputValue());
+        assertTrue(returnedPage.isLanguageSelected("English"));
+        assertTrue(returnedPage.isGenderSelected("male"));
+        assertEquals("Good", returnedPage.getSelectedLikeUsOption());
+        assertEquals("Great experience", returnedPage.getCommentInputValue());
     }
 
-    private void fillFeedback(String name, String age, String language,
-                              String gender, String option, String comment) {
-        driver.findElement(By.id("fb_name")).sendKeys(name);
-        driver.findElement(By.id("fb_age")).sendKeys(age);
-        driver.findElement(By.cssSelector("input[name='language'][value='" + language + "']")).click();
-        driver.findElement(By.cssSelector("input[name='gender'][value='" + gender + "']")).click();
-        new Select(driver.findElement(By.id("like_us"))).selectByVisibleText(option);
-        driver.findElement(By.name("comment")).sendKeys(comment);
+    private void assertFeedback(FeedbackReviewPage reviewPage) {
+        assertEquals("Janis", reviewPage.getName());
+        assertEquals("30", reviewPage.getAge());
+        assertEquals("English", reviewPage.getLanguage());
+        assertEquals("male", reviewPage.getGender());
+        assertEquals("Good", reviewPage.getOption());
+        assertEquals("Great experience", reviewPage.getComment());
     }
 
+    private void assertEmptyOrNull(String field, String value) {
 //    helper method to assert that a field is empty or null
-    private void assertEmptyOrNull(String id) {
-        String value = driver.findElement(By.id(id)).getText().trim();
-
+        value = value.trim();
         assertTrue(value.isEmpty() || value.equalsIgnoreCase("null"),
-                id + " should be empty or null, but was: " + value);
+                field + " should be empty or null, but was: " + value);
     }
 }
