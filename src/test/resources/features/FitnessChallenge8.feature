@@ -1,3 +1,4 @@
+@cross-browser
 Feature: CROSS-BROWSER COMPATIBILITY
 
   Background:

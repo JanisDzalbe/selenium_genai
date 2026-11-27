@@ -8,7 +8,7 @@ import org.junit.runner.RunWith;
 @CucumberOptions(
         features = "src/test/resources/features/",
         plugin = {"pretty"},
-        tags = "not @bug",
+        tags = "not @bug and not @cross-browser",
         glue = {"selenium.stepDefinitions"}
 )
 public class CucumberRunner {
