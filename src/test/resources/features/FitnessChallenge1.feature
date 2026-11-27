@@ -9,15 +9,15 @@ Feature: INITIAL PAGE LOAD
     And 10 participants are displayed in the list
     And the default participants are displayed:
       | Name              | Steps   |
-      | Mike Kid          | 8,500   |
-      | Jill Watson       | 12,000  |
-      | Jane Doe          | 6,500   |
       | John Smith        | 15,000  |
-      | Sarah Johnson     | 9,800   |
-      | Carlos Garcia     | 11,200  |
-      | Emily Chen        | 7,300   |
       | David Brown       | 13,500  |
+      | Jill Watson       | 12,000  |
+      | Carlos Garcia     | 11,200  |
       | Maria Rodriguez   | 10,500  |
+      | Sarah Johnson     | 9,800   |
       | Alex Taylor       | 8,900   |
+      | Mike Kid          | 8,500   |
+      | Emily Chen        | 7,300   |
+      | Jane Doe          | 6,500   |
     And "Add Steps" buttons are visible at top and bottom
     And "Reset List" buttons are visible at top and bottom
