@@ -338,6 +338,7 @@ public class FitnessChallengeSteps {
     public void openAddStepsModal(String modalName) {
         assertEquals("Add Steps", modalName);
         clickTopPageButton("Add Steps");
+        waitForAddStepsModalReady();
     }
 
     @When("I select {string} from the dropdown")
@@ -365,6 +366,8 @@ public class FitnessChallengeSteps {
         WebElement input = waitForClickable(STEPS_INPUT);
         input.clear();
         input.sendKeys(steps);
+        new WebDriverWait(Hooks.driver, Duration.ofSeconds(10))
+                .until(driver -> steps.equals(driver.findElement(STEPS_INPUT).getAttribute("value")));
         stepsToAdd = steps;
     }
 
@@ -486,7 +489,14 @@ public class FitnessChallengeSteps {
     @When("I submit without selecting participant")
     public void submitWithoutSelectingParticipant() {
         openAddStepsModal("Add Steps");
+        waitForAddStepsModalReady();
+        new WebDriverWait(Hooks.driver, Duration.ofSeconds(10))
+                .until(driver -> "Choose participant".equals(
+                        new Select(driver.findElement(PARTICIPANT_SELECT))
+                                .getFirstSelectedOption().getText().trim()));
         enterStepsInField("1000");
+        new WebDriverWait(Hooks.driver, Duration.ofSeconds(10))
+                .until(driver -> "1000".equals(driver.findElement(STEPS_INPUT).getAttribute("value")));
         clickModalAddButton();
         assertAlertAppears("Please select a participant");
         acceptAlert();
@@ -588,6 +598,8 @@ public class FitnessChallengeSteps {
         new WebDriverWait(Hooks.driver, Duration.ofSeconds(10))
                 .until(ExpectedConditions.invisibilityOfElementLocated(ADD_STEPS_MODAL));
         new WebDriverWait(Hooks.driver, Duration.ofSeconds(10))
+                .until(driver -> driver.findElements(PARTICIPANT_ROWS).size() == 10);
+        new WebDriverWait(Hooks.driver, Duration.ofSeconds(10))
                 .until(driver -> participantSteps(participant)
                         == stepsBeforeAddition + parsedStepsToAdd());
         assertEquals("Added step count for " + participant,
@@ -596,6 +608,13 @@ public class FitnessChallengeSteps {
 
     private void clickModalAddButton() {
         waitForClickable(MODAL_ADD_BUTTON).click();
+    }
+
+    private void waitForAddStepsModalReady() {
+        waitForVisible(ADD_STEPS_MODAL);
+        waitForVisible(PARTICIPANT_SELECT);
+        waitForVisible(STEPS_INPUT);
+        waitForClickable(MODAL_ADD_BUTTON);
     }
 
     private boolean hasDefaultParticipantState() {

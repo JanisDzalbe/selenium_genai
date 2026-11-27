@@ -13,6 +13,8 @@
 - Cucumber runner: `src/test/java/selenium/runners/CucumberRunner.java`.
 - Cucumber hooks and step definitions: `src/test/java/selenium/stepDefinitions/`.
 - Feature files: `src/test/resources/features/*.feature`.
+- Page objects: `src/test/java/selenium/pages/`.
+- Feedback form page object: `src/test/java/selenium/pages/FeedbackPage.java`.
 - Shared Selenium utilities: `src/test/java/selenium/utility/`.
 - Browser executables belong in `lib/`; they are intentionally ignored by Git.
 - Intended page-object packages are `selenium/pages` and `selenium/utility`, matching `README.md`.
@@ -45,3 +47,5 @@
 - Keep Gherkin steps and Java step methods synchronized; each scenario belongs to a feature file and implementation.
 - Many task and step methods are currently TODOs. Implement the described behavior rather than removing TODO sections unless the task has already been completed.
 - Follow the Page Object Model when implementing reusable locators or interactions.
+- Keep Selenium locators in page objects under `selenium.pages`; tests and step definitions should use page-object actions and queries rather than defining locators.
+- Page objects own explicit waits and browser interactions, but keep test assertions in the test classes.
