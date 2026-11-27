@@ -2,7 +2,7 @@
 
 ## Project Overview
 Selenium WebDriver project teaching test automation fundamentals.
-Uses **Java 24**, **Selenium 4**, and **JUnit 5** with Maven build system.
+Uses **Java 27**, **Selenium 4**, and **JUnit Jupiter** with Maven build system.
 
 ## Architecture Patterns
 
@@ -23,7 +23,7 @@ Use custom utility function to initialize WebDriver instances based on OS.
 
 ## Build & Run
 - **Maven project**: Run via IDE's JUnit integration or `mvn test`
-- **Java version**: Requires Java 24 (configured in pom.xml)
+- **Java version**: Requires Java 27 (configured in pom.xml)
 - No custom build tasks configured - standard Maven lifecycle applies
 
 ## Project tasks:
