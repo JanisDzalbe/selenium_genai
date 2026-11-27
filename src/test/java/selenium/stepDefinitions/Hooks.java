@@ -4,14 +4,14 @@ import io.cucumber.java.After;
 import io.cucumber.java.Before;
 import io.cucumber.java.Scenario;
 import org.openqa.selenium.WebDriver;
-import selenium.utility.WebDriverUtils;
+import selenium.utility.ChromeDriverUtility;
 
 public class Hooks {
     public static WebDriver driver;
 
     @Before
     public void openBrowser() {
-        driver = WebDriverUtils.createChromeDriver();
+        driver = ChromeDriverUtility.createChromeDriver();
     }
 
     @After

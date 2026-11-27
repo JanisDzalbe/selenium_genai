@@ -24,7 +24,7 @@ Use custom utility function to initialize WebDriver instances based on OS.
 ## Build & Run
 - **Java version**: Requires Java 27; Maven compiler release is configured in `pom.xml`.
 - **Compile and run discovered tests**: `mvn test`
-- **ChromeDriver**: Put `chromedriver.exe` (Windows) or `chromedriver` (Linux/macOS) in `lib/`. `selenium.utility.WebDriverUtils` configures the driver path for Cucumber hooks.
+- **ChromeDriver**: Put `chromedriver.exe` (Windows) or `chromedriver` (Linux/macOS) in `lib/`. `selenium.utility.ChromeDriverUtility` configures the driver path for Cucumber hooks.
 - The task classes and Cucumber step definitions are teaching skeletons with TODOs; a successful Maven build does not mean all browser scenarios are implemented.
 
 ## Project tasks:
