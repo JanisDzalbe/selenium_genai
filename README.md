@@ -8,9 +8,10 @@ Uses **Java 24**, **Selenium 4**, and **JUnit 5** with Maven build system.
 
 ### Driver Initialization (Cross-Platform)
 
-**Driver location**: Place WebDriver executables in `lib/` directory
-
-Use custom utility function to initialize WebDriver instances based on OS.
+Place the ChromeDriver executable in `lib/`: use `chromedriver.exe` on Windows and
+`chromedriver` on Linux/macOS. `selenium.utility.ChromeDriverFactory.createDriver()`
+selects the filename for the current OS, sets `webdriver.chrome.driver` to its absolute
+path, and returns a new `ChromeDriver`. On Linux/macOS the driver file must be executable.
 
 
 ### Test Structure Convention:
@@ -28,7 +29,7 @@ Use custom utility function to initialize WebDriver instances based on OS.
 
 ## Project tasks:
 - [ ] Set up Java Selenium project with Maven (pom.xml)
-- [ ] Implement cross-platform WebDriver initialization in utility class
+- [x] Implement cross-platform WebDriver initialization in utility class
 - [ ] Download and manage WebDriver executables in `lib/` directory
 - [ ] Implement sample test cases in `src/test/java/selenium/tasks` package using JUnit 5
 - [ ] Implement features in `src/test/resources/features/` directory using Cucumber
