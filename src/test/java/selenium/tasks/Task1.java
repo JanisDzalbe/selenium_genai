@@ -3,13 +3,11 @@ package selenium.tasks;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
-import org.openqa.selenium.support.ui.Select;
-import org.openqa.selenium.support.ui.WebDriverWait;
+import selenium.pages.FeedbackPage;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -20,6 +18,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 public class Task1 {
     WebDriver driver;
+    FeedbackPage feedbackPage;
 
     @BeforeEach
     public void openPage() {
@@ -33,7 +32,7 @@ public class Task1 {
                 "--disable-dev-shm-usage");
         driver = new ChromeDriver(options);
         driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(5));
-        driver.get("https://janisdzalbe.github.io/example-site/tasks/provide_feedback");
+        feedbackPage = new FeedbackPage(driver);
     }
 
     @AfterEach
@@ -43,19 +42,10 @@ public class Task1 {
         }
     }
 
-    private WebElement waitForElement(By locator) {
-        return new WebDriverWait(driver, Duration.ofSeconds(10))
-                .until(org.openqa.selenium.support.ui.ExpectedConditions.presenceOfElementLocated(locator));
-    }
-
-    private void sendFeedback() {
-        waitForElement(By.cssSelector("button[type='submit']")).click();
-    }
-
-    private void assertEmptyOrNull(By locator) {
-        String text = waitForElement(locator).getText().trim();
+    private void assertEmptyOrNull(String fieldName) {
+        String text = feedbackPage.submittedValue(fieldName);
         assertTrue(text.isEmpty() || text.equalsIgnoreCase("null"),
-                () -> "Expected an empty or null value for " + locator + ", but was '" + text + "'");
+                () -> "Expected an empty or null value for " + fieldName + ", but was '" + text + "'");
     }
 
     private void assertRgba(WebElement element, String property, String expected) {
@@ -65,116 +55,81 @@ public class Task1 {
                 () -> "Expected " + property + " " + expected + " but was " + value);
     }
 
-    private void fillFeedback(String name, String age, String gender, String option,
-                              List<String> languages, String comment) {
-        waitForElement(By.id("fb_name")).clear();
-        waitForElement(By.id("fb_name")).sendKeys(name);
-        waitForElement(By.id("fb_age")).clear();
-        waitForElement(By.id("fb_age")).sendKeys(age);
-
-        for (String language : languages) {
-            waitForElement(By.cssSelector("input[name='language'][value='" + language + "']")).click();
-        }
-        if (gender != null) {
-            waitForElement(By.cssSelector("input[name='gender'][value='" + gender + "']")).click();
-        }
-        new Select(waitForElement(By.id("like_us"))).selectByVisibleText(option);
-        WebElement commentField = waitForElement(By.cssSelector("textarea[name='comment']"));
-        commentField.clear();
-        commentField.sendKeys(comment);
-    }
-
     @Test
     public void initialFeedbackPage() throws Exception {
-        assertEquals("", waitForElement(By.id("fb_name")).getAttribute("value"));
-        assertEquals("", waitForElement(By.id("fb_age")).getAttribute("value"));
+        assertEquals("", feedbackPage.nameField().getAttribute("value"));
+        assertEquals("", feedbackPage.ageField().getAttribute("value"));
 
-        List<WebElement> languages = driver.findElements(By.cssSelector("input[name='language']"));
-        for (WebElement language : languages) {
+        for (WebElement language : feedbackPage.languageOptions()) {
             assertFalse(language.isSelected());
         }
 
-        WebElement dontKnow = driver.findElement(By.cssSelector("input[name='gender'][disabled][checked]"));
+        WebElement dontKnow = feedbackPage.unknownGenderOption();
         assertTrue(dontKnow.isSelected());
-        assertTrue(driver.findElements(By.cssSelector("input[name='gender']:not([disabled]):checked")).isEmpty());
+        assertTrue(feedbackPage.selectedGenderOptions().isEmpty());
 
-        Select options = new Select(waitForElement(By.id("like_us")));
-        assertEquals("Choose your option", options.getFirstSelectedOption().getText());
-        assertEquals("", waitForElement(By.cssSelector("textarea[name='comment']")).getAttribute("value"));
+        assertEquals("Choose your option", feedbackPage.firstSelectedOptionText());
+        assertEquals("", feedbackPage.commentField().getAttribute("value"));
 
-        WebElement send = waitForElement(By.cssSelector("button[type='submit']"));
+        WebElement send = feedbackPage.submitButton();
         assertRgba(send, "background-color", "rgba(33, 150, 243, 1)");
         assertRgba(send, "color", "rgba(255, 255, 255, 1)");
     }
 
     @Test
     public void emptyFeedbackPage() throws Exception {
-        sendFeedback();
-        new WebDriverWait(driver, Duration.ofSeconds(10))
-                .until(org.openqa.selenium.support.ui.ExpectedConditions.urlContains("check_feedback"));
+        feedbackPage.submit();
 
-        assertEmptyOrNull(By.id("name"));
-        assertEmptyOrNull(By.id("age"));
-        assertEmptyOrNull(By.id("language"));
-        assertEmptyOrNull(By.id("gender"));
-        assertEmptyOrNull(By.id("option"));
-        assertEmptyOrNull(By.id("comment"));
+        assertEmptyOrNull("name");
+        assertEmptyOrNull("age");
+        assertEmptyOrNull("language");
+        assertEmptyOrNull("gender");
+        assertEmptyOrNull("option");
+        assertEmptyOrNull("comment");
     }
 
     @Test
     public void notEmptyFeedbackPage() throws Exception {
-        fillFeedback("Janis", "30", "male", "Good",
+        feedbackPage.fill("Janis", "30", "male", "Good",
                 List.of("English", "French"), "Great site!");
-        sendFeedback();
-        new WebDriverWait(driver, Duration.ofSeconds(10))
-                .until(org.openqa.selenium.support.ui.ExpectedConditions.urlContains("check_feedback"));
+        feedbackPage.submit();
 
-        assertEquals("Janis", waitForElement(By.id("name")).getText());
-        assertEquals("30", waitForElement(By.id("age")).getText());
-        assertEquals("English,French", waitForElement(By.id("language")).getText());
-        assertEquals("male", waitForElement(By.id("gender")).getText());
-        assertEquals("Good", waitForElement(By.id("option")).getText());
-        assertEquals("Great site!", waitForElement(By.id("comment")).getText());
+        assertEquals("Janis", feedbackPage.submittedValue("name"));
+        assertEquals("30", feedbackPage.submittedValue("age"));
+        assertEquals("English,French", feedbackPage.submittedValue("language"));
+        assertEquals("male", feedbackPage.submittedValue("gender"));
+        assertEquals("Good", feedbackPage.submittedValue("option"));
+        assertEquals("Great site!", feedbackPage.submittedValue("comment"));
     }
 
     @Test
     public void yesOnWithNameFeedbackPage() throws Exception {
-        waitForElement(By.id("fb_name")).sendKeys("Janis");
-        sendFeedback();
-        waitForElement(By.xpath("//button[normalize-space()='Yes']")).click();
-        new WebDriverWait(driver, Duration.ofSeconds(10))
-                .until(org.openqa.selenium.support.ui.ExpectedConditions.urlContains("thank_you_for_feedback"));
-        assertEquals("Thank you, Janis, for your feedback!",
-                waitForElement(By.id("message")).getText());
+        feedbackPage.nameField().sendKeys("Janis");
+        feedbackPage.submit();
+        feedbackPage.confirmYes();
+        assertEquals("Thank you, Janis, for your feedback!", feedbackPage.thankYouMessage());
     }
 
     @Test
     public void yesOnWithoutNameFeedbackPage() throws Exception {
-        sendFeedback();
-        waitForElement(By.xpath("//button[normalize-space()='Yes']")).click();
-        new WebDriverWait(driver, Duration.ofSeconds(10))
-                .until(org.openqa.selenium.support.ui.ExpectedConditions.urlContains("thank_you_for_feedback"));
-        assertEquals("Thank you for your feedback!",
-                waitForElement(By.id("message")).getText());
+        feedbackPage.submit();
+        feedbackPage.confirmYes();
+        assertEquals("Thank you for your feedback!", feedbackPage.thankYouMessage());
     }
 
     @Test
     public void noOnFeedbackPage() throws Exception {
-        fillFeedback("Janis", "30", "female", "Ok, i guess",
+        feedbackPage.fill("Janis", "30", "female", "Ok, i guess",
                 List.of("Spanish", "Chinese"), "Could improve.");
-        sendFeedback();
-        waitForElement(By.xpath("//button[normalize-space()='No']")).click();
-        new WebDriverWait(driver, Duration.ofSeconds(10))
-                .until(org.openqa.selenium.support.ui.ExpectedConditions.urlContains("provide_feedback"));
+        feedbackPage.submit();
+        feedbackPage.chooseNo();
 
-        assertEquals("Janis", waitForElement(By.id("fb_name")).getAttribute("value"));
-        assertEquals("30", waitForElement(By.id("fb_age")).getAttribute("value"));
-        assertTrue(waitForElement(By.cssSelector("input[name='language'][value='Spanish']")).isSelected());
-        assertTrue(waitForElement(By.cssSelector("input[name='language'][value='Chinese']")).isSelected());
-        assertTrue(waitForElement(By.cssSelector("input[name='gender'][value='female']")).isSelected());
-        assertEquals("Ok, i guess",
-                new Select(waitForElement(By.id("like_us"))).getFirstSelectedOption().getText());
-        assertEquals("Could improve.",
-                waitForElement(By.cssSelector("textarea[name='comment']")).getAttribute("value"));
+        assertEquals("Janis", feedbackPage.nameField().getAttribute("value"));
+        assertEquals("30", feedbackPage.ageField().getAttribute("value"));
+        assertTrue(feedbackPage.languageOption("Spanish").isSelected());
+        assertTrue(feedbackPage.languageOption("Chinese").isSelected());
+        assertTrue(feedbackPage.genderOption("female").isSelected());
+        assertEquals("Ok, i guess", feedbackPage.firstSelectedOptionText());
+        assertEquals("Could improve.", feedbackPage.commentField().getAttribute("value"));
     }
 }
