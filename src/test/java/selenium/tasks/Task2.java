@@ -1,47 +1,97 @@
 package selenium.tasks;
 
+import net.bytebuddy.build.ToStringPlugin;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.openqa.selenium.Alert;
+import org.openqa.selenium.By;
+import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
+import org.openqa.selenium.support.ui.Select;
+import org.openqa.selenium.support.ui.WebDriverWait;
+import selenium.utility.ChromeDriverUtility;
+
+import java.math.BigInteger;
+import java.time.Duration;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class Task2 {
-    WebDriver driver;
+    private WebDriver driver;
+    private WebDriverWait wait;
+
+    private static final String PAGE_URL =
+            "https://janisdzalbe.github.io/example-site/tasks/fitness_challenge";
+
+    private static final Map<String, String> DEFAULT_PARTICIPANTS =
+            new LinkedHashMap<>();
+
+    static {
+        DEFAULT_PARTICIPANTS.put("Mike Kid", "8,500");
+        DEFAULT_PARTICIPANTS.put("Jill Watson", "12,000");
+        DEFAULT_PARTICIPANTS.put("Jane Doe", "6,500");
+        DEFAULT_PARTICIPANTS.put("John Smith", "15,000");
+        DEFAULT_PARTICIPANTS.put("Sarah Johnson", "9,800");
+        DEFAULT_PARTICIPANTS.put("Carlos Garcia", "11,200");
+        DEFAULT_PARTICIPANTS.put("Emily Chen", "7,300");
+        DEFAULT_PARTICIPANTS.put("David Brown", "13,500");
+        DEFAULT_PARTICIPANTS.put("Maria Rodriguez", "10,500");
+        DEFAULT_PARTICIPANTS.put("Alex Taylor", "8,900");
+    }
 
     @BeforeEach
     public void openPage() {
-        // TODO
-        //  initialize the driver
-        //  open page https://janisdzalbe.github.io/example-site/tasks/fitness_challenge
+        driver = ChromeDriverUtility.createChromeDriver();
+        wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+        driver.get(PAGE_URL);
+
+        ((JavascriptExecutor) driver).executeScript(
+                "for (var i = localStorage.length - 1; i >= 0; i--) {" +
+                "  var key = localStorage.key(i);" +
+                "  if (key && (key.startsWith('participant') || key === 'fitnessReload')) {" +
+                "    localStorage.removeItem(key);" +
+                "  }" +
+                "}");
+        driver.navigate().refresh();
+        wait.until(webDriver -> webDriver.findElements(By.cssSelector("#participantsList li")).size() == 10);
     }
 
     @AfterEach
     public void closeBrowser() {
-        // TODO
-        //  close the browser
+        if (driver != null) {
+            driver.quit();
+        }
     }
 
     // FEATURE 1: INITIAL PAGE LOAD
 
     @Test
     public void firstTimePageLoad() throws Exception {
-        // TODO:
-        //  verify page displays title "Fitness Challenge"
-        //  verify 10 participants are displayed in the list
-        //  verify default participants include:
-        //   Mike Kid, Jill Watson, Jane Doe, John Smith, Sarah Johnson, Carlos Garcia, Emily Chen, David Brown, Maria Rodriguez, Alex Taylor
-        //  verify all participants display their initial step counts
-        //   Mike Kid: 8,500,
-        //   Jill Watson: 12,000,
-        //   Jane Doe: 6,500,
-        //   John Smith: 15,000,
-        //   Sarah Johnson: 9,800,
-        //   Carlos Garcia: 11,200,
-        //   Emily Chen: 7,300,
-        //   David Brown: 13,500,
-        //   Maria Rodriguez: 10,500,
-        //   Alex Taylor: 8,900
-        //  verify "Add Steps" and "Reset List" buttons are visible (appear twice - top and bottom)
+        assertEquals("Fitness Challenge", waitForText(By.cssSelector("h2")));
+
+        Map<String, String> displayed = readParticipants();
+        assertEquals(10, displayed.size());
+        assertEquals(DEFAULT_PARTICIPANTS, displayed);
+
+        List<WebElement> addButtons = driver.findElements(By.cssSelector("#addStepsBtn"));
+        List<WebElement> resetButtons = driver.findElements(By.cssSelector("#resetBtn"));
+        assertEquals(2, addButtons.size());
+        assertEquals(2, resetButtons.size());
+        for (WebElement button : addButtons) {
+            assertTrue(button.isDisplayed());
+            assertEquals("Add Steps", button.getText());
+        }
+        for (WebElement button : resetButtons) {
+            assertTrue(button.isDisplayed());
+            assertEquals("Reset List", button.getText());
+        }
     }
 
     // FEATURE 2: PARTICIPANT DISPLAY AND RANKING
@@ -215,25 +265,39 @@ public class Task2 {
 
     @Test
     public void maximumIntegerValue() throws Exception {
-        // TODO:
-        //  open the "Add Steps" modal
-        //  select a participant
-        //  enter the maximum safe integer: "9007199254740991"
-        //  submit the form
-        //  verify system accepts the value
-        //  verify step count updates correctly
+        openAddStepsModal();
+        new Select(driver.findElement(By.id("participant_select")))
+                .selectByVisibleText("Mike Kid");
+        driver.findElement(By.id("steps_input")).sendKeys("9007199254740991");
+        driver.findElement(By.id("modal_add_steps_button")).click();
+
+        wait.until(webDriver ->
+                "none".equals(webDriver.findElement(By.id("addStepsModal"))
+                        .getCssValue("display")));
+
+        BigInteger expectedSteps = new BigInteger("9007199254749492");
+        assertEquals(expectedSteps, readParticipantSteps("Mike Kid"));
+
+        assertEquals("Mike Kid",
+                wait.until(webDriver -> webDriver.findElement(By.cssSelector(
+                        "#participantsList li")).findElement(By.cssSelector(".participant-name"))
+                        .getText()));
     }
 
     @Test
     public void decimalStepValues() throws Exception {
-        // TODO:
-        //  open the "Add Steps" modal
-        //  select any participant
-        //  enter "100.5" in the steps input field
-        //  click "Add Steps" button
-        //  verify alert appears: "Please enter a valid number of steps"
-        //  accept alert
-        //  verify modal remains open
+        openAddStepsModal();
+        new Select(driver.findElement(By.id("participant_select")))
+                .selectByVisibleText("Mike Kid");
+        driver.findElement(By.id("steps_input")).sendKeys("100.5");
+        driver.findElement(By.id("modal_add_steps_button")).click();
+
+        Alert alert = wait.until(org.openqa.selenium.support.ui.ExpectedConditions.alertIsPresent());
+        assertEquals("Please enter a valid number of steps", alert.getText());
+        alert.accept();
+
+        assertTrue(driver.findElement(By.id("addStepsModal")).isDisplayed());
+        assertEquals(new BigInteger("8500"), readParticipantSteps("Mike Kid"));
     }
 
     // FEATURE 8: CROSS-BROWSER COMPATIBILITY
@@ -260,5 +324,43 @@ public class Task2 {
         //  open https://janisdzalbe.github.io/example-site/tasks/fitness_challenge in Firefox
         //  execute addValidStepsToParticipant, submitWithoutSelectingParticipant, and resetViaTopButton tests
         //  verify all features work as expected
+    }
+
+    private void openAddStepsModal() {
+        driver.findElement(By.cssSelector("#addStepsBtn")).click();
+        wait.until(webDriver -> "block".equals(
+                webDriver.findElement(By.id("addStepsModal")).getCssValue("display")));
+    }
+
+    private Map<String, String> readParticipants() {
+        Map<String, String> participants = new LinkedHashMap<>();
+        for (WebElement row : driver.findElements(By.cssSelector("#participantsList li"))) {
+            String name = row.findElement(By.cssSelector(".participant-name")).getText();
+            String steps = row.findElement(By.cssSelector(".participant-steps"))
+                    .getText()
+                    .replace(" steps", "")
+                    .trim();
+            participants.put(name, steps);
+        }
+        return participants;
+    }
+
+    private BigInteger readParticipantSteps(String participantName) {
+        for (WebElement row : driver.findElements(By.cssSelector("#participantsList li"))) {
+            String name = row.findElement(By.cssSelector(".participant-name")).getText();
+            if (participantName.equals(name)) {
+                String steps = row.findElement(By.cssSelector(".participant-steps"))
+                        .getText()
+                        .replace(",", "")
+                        .replace(" steps", "")
+                        .trim();
+                return new BigInteger(steps);
+            }
+        }
+        throw new AssertionError("Participant not found: " + participantName);
+    }
+
+    private String waitForText(By locator) {
+        return wait.until(webDriver -> webDriver.findElement(locator).getText());
     }
 }
