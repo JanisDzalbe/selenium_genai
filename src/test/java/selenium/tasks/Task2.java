@@ -437,6 +437,7 @@ public class Task2 {
                 .getText().replaceAll("[^0-9]", "");
         return Long.parseLong(digits);
     }
+    // decimalStepValues fails, entering 100.5 in Add Steps is accepted and truncated to 100. Expected the alert "Please enter a valid number of steps".
     // FEATURE 8: CROSS-BROWSER COMPATIBILITY
 
     @Test
