@@ -31,6 +31,7 @@ target/
 
 # IntelliJ IDEA
 .idea
+*.iml
 
 # VS Code
 .vscode/
@@ -42,3 +43,4 @@ target/
 lib/chrome*
 lib/gecko*
 lib/msedge*
+/selenium_genai.iml
