@@ -2,15 +2,15 @@
 
 ## Project Overview
 Selenium WebDriver project teaching test automation fundamentals.
-Uses **Java 24**, **Selenium 4**, and **JUnit 5** with Maven build system.
+Uses **Java 27**, **Selenium 4.54.0**, **JUnit 5**, and **Cucumber** with Maven.
 
 ## Architecture Patterns
 
 ### Driver Initialization (Cross-Platform)
 
-**Driver location**: Place WebDriver executables in `lib/` directory
+**Driver location**: Place WebDriver executables in `lib/` directory. The Chrome utility expects `chromedriver.exe` on Windows and `chromedriver` on Unix-like systems.
 
-Use custom utility function to initialize WebDriver instances based on OS.
+`selenium.utility.WebDriverUtility.createChromeDriver()` selects the platform-specific executable, sets `webdriver.chrome.driver`, and creates a `ChromeDriver`. Cucumber's `Hooks` uses this utility to create and quit the browser for each scenario.
 
 
 ### Test Structure Convention:
@@ -22,13 +22,13 @@ Use custom utility function to initialize WebDriver instances based on OS.
 - Cucumber runner classes are in `src/test/java/selenium/runners` package
 
 ## Build & Run
-- **Maven project**: Run via IDE's JUnit integration or `mvn test`
-- **Java version**: Requires Java 24 (configured in pom.xml)
+- **Maven project**: Run `mvn test` from the project root. Current task/runner class names do not match Maven Surefire's default discovery patterns, so this currently compiles tests without executing them; the Cucumber step definitions are also still TODOs.
+- **Java version**: Requires Java 27 (configured in `pom.xml`)
 - No custom build tasks configured - standard Maven lifecycle applies
 
 ## Project tasks:
-- [ ] Set up Java Selenium project with Maven (pom.xml)
-- [ ] Implement cross-platform WebDriver initialization in utility class
+- [x] Set up Java Selenium project with Maven (pom.xml)
+- [x] Implement cross-platform ChromeDriver initialization in utility class
 - [ ] Download and manage WebDriver executables in `lib/` directory
 - [ ] Implement sample test cases in `src/test/java/selenium/tasks` package using JUnit 5
 - [ ] Implement features in `src/test/resources/features/` directory using Cucumber
