@@ -2,7 +2,7 @@
 
 ## Project Overview
 Selenium WebDriver project teaching test automation fundamentals.
-Uses **Java 24**, **Selenium 4**, and **JUnit 5** with Maven build system.
+Uses **Java 27**, **Selenium 4**, and **JUnit 5** with Maven build system.
 
 ## Architecture Patterns
 
@@ -22,13 +22,14 @@ Use custom utility function to initialize WebDriver instances based on OS.
 - Cucumber runner classes are in `src/test/java/selenium/runners` package
 
 ## Build & Run
-- **Maven project**: Run via IDE's JUnit integration or `mvn test`
-- **Java version**: Requires Java 24 (configured in pom.xml)
-- No custom build tasks configured - standard Maven lifecycle applies
+- **Java version**: Requires Java 27; Maven compiler release is configured in `pom.xml`.
+- **Compile and run discovered tests**: `mvn test`
+- **ChromeDriver**: Put `chromedriver.exe` (Windows) or `chromedriver` (Linux/macOS) in `lib/`. `selenium.utility.WebDriverUtils` configures the driver path for Cucumber hooks.
+- The task classes and Cucumber step definitions are teaching skeletons with TODOs; a successful Maven build does not mean all browser scenarios are implemented.
 
 ## Project tasks:
-- [ ] Set up Java Selenium project with Maven (pom.xml)
-- [ ] Implement cross-platform WebDriver initialization in utility class
+- [x] Set up Java Selenium project with Maven (pom.xml)
+- [x] Implement cross-platform WebDriver initialization in utility class
 - [ ] Download and manage WebDriver executables in `lib/` directory
 - [ ] Implement sample test cases in `src/test/java/selenium/tasks` package using JUnit 5
 - [ ] Implement features in `src/test/resources/features/` directory using Cucumber
