@@ -10,7 +10,9 @@ Uses **Java 24**, **Selenium 4**, and **JUnit 5** with Maven build system.
 
 **Driver location**: Place WebDriver executables in `lib/` directory
 
-Use custom utility function to initialize WebDriver instances based on OS.
+Use `selenium.utility.WebDriverFactory.createChromeDriver()` to initialize a
+ChromeDriver. The utility selects `chromedriver.exe` on Windows and
+`chromedriver` on UNIX-like operating systems.
 
 
 ### Test Structure Convention:
