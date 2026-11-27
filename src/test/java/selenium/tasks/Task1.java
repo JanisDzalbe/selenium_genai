@@ -97,6 +97,7 @@ public class Task1 {
                 .submit()
                 .clickNo();
 
+
         assertEquals("Jamie Example", returnedPage.nameValue());
         assertEquals("28", returnedPage.ageValue());
         assertTrue(returnedPage.isLanguageSelected("Spanish"));
