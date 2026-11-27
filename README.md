@@ -2,15 +2,15 @@
 
 ## Project Overview
 Selenium WebDriver project teaching test automation fundamentals.
-Uses **Java 24**, **Selenium 4**, and **JUnit 5** with Maven build system.
+Uses **Java 27**, **Selenium 4**, **JUnit 5**, and **Cucumber** with Maven.
 
 ## Architecture Patterns
 
 ### Driver Initialization (Cross-Platform)
 
-**Driver location**: Place WebDriver executables in `lib/` directory
+**Driver location**: Place WebDriver executables in `lib/` directory (`chromedriver.exe` on Windows; `chromedriver` on Linux/macOS).
 
-Use custom utility function to initialize WebDriver instances based on OS.
+Use `selenium.utility.WebDriverUtility.createChromeDriver()` to set `webdriver.chrome.driver` and create a ChromeDriver. On Unix-like systems, ensure the driver file has execute permission.
 
 
 ### Test Structure Convention:
@@ -23,12 +23,13 @@ Use custom utility function to initialize WebDriver instances based on OS.
 
 ## Build & Run
 - **Maven project**: Run via IDE's JUnit integration or `mvn test`
-- **Java version**: Requires Java 24 (configured in pom.xml)
+- **Java version**: Requires a Java 27 JDK (configured in `pom.xml`; Maven uses `JAVA_HOME`)
 - No custom build tasks configured - standard Maven lifecycle applies
+- The browser setup and exercise implementations are still TODOs, so the current test sources are not yet a complete end-to-end test suite.
 
 ## Project tasks:
-- [ ] Set up Java Selenium project with Maven (pom.xml)
-- [ ] Implement cross-platform WebDriver initialization in utility class
+- [x] Set up Java Selenium project with Maven (pom.xml)
+- [x] Implement cross-platform WebDriver initialization in utility class
 - [ ] Download and manage WebDriver executables in `lib/` directory
 - [ ] Implement sample test cases in `src/test/java/selenium/tasks` package using JUnit 5
 - [ ] Implement features in `src/test/resources/features/` directory using Cucumber
