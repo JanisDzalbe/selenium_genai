@@ -25,12 +25,14 @@ replay_pid*
 
 # Java
 target/
+out/
 !.mvn/wrapper/maven-wrapper.jar
 !src/main/**/target/
 !src/test/**/target/
 
 # IntelliJ IDEA
-.idea
+.idea/
+*.iml
 
 # VS Code
 .vscode/

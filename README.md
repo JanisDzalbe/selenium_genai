@@ -8,9 +8,11 @@ Uses **Java 24**, **Selenium 4**, and **JUnit 5** with Maven build system.
 
 ### Driver Initialization (Cross-Platform)
 
-**Driver location**: Place WebDriver executables in `lib/` directory
+**Driver location**: Place the platform-specific ChromeDriver executable in `lib/`:
+`chromedriver.exe` on Windows or `chromedriver` on UNIX-like operating systems.
 
-Use custom utility function to initialize WebDriver instances based on OS.
+Use `selenium.utility.WebDriverUtils.createChromeDriver()` to set the
+`webdriver.chrome.driver` system property and create a `ChromeDriver`.
 
 
 ### Test Structure Convention:
