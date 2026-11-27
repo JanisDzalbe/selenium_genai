@@ -5,7 +5,7 @@
 - `src/test/java/selenium/tasks/Task1.java` and `Task2.java` contain JUnit Jupiter tests for the feedback and fitness-challenge pages.
 - The parallel BDD exercises are Gherkin files in `src/test/resources/features/FitnessChallenge*.feature`; `CucumberRunner.java` runs FitnessChallenge1–7 and binds step definitions in `selenium.stepDefinitions`.
 - `FitnessChallengeSteps.java` binds the first seven fitness feature files to Selenium; `Hooks` creates and closes the shared Chrome browser per scenario. `SampleSteps.java` remains an unused placeholder.
-- There are no Page Objects yet. `selenium.utility` contains the Chrome `DriverFactory`; the README's Page Object references describe a planned convention, not existing code.
+- `selenium.pages` contains `FeedbackFormPage`, `FeedbackReviewPage`, `FeedbackThankYouPage`, and `FitnessChallengePage`. `Task1` and `Task2` use these page objects to keep locators and browser actions out of test methods. `selenium.utility` contains the Chrome `DriverFactory`.
 
 ## Browser and test patterns
 - The tests target public pages hosted at `https://janisdzalbe.github.io/example-site/tasks/` (`provide_feedback` and `fitness_challenge`); tests exercise the live UI rather than a local application.
@@ -23,4 +23,4 @@
 - These browser tests use the live external training site. Its current step-entry script parses decimal input with `parseInt`, so `FitnessChallenge7`'s decimal-rejection scenario captures a mismatch in the site behavior.
 - The IntelliJ module file (`selenium_genai.iml`) marks `src/test/java` as a test source root, but does not declare project dependencies. Use IDE test execution only when the IDE has the required Java, Selenium, JUnit, and Cucumber libraries configured.
 - The README contains project setup notes and links to the original Selenium setup guides; `prompts.md` records exercise/task prompts, not build configuration.
-- `Task1` and `Task2` exercise the feedback and fitness challenge flows end to end. `FitnessChallengeSteps` binds the first seven fitness feature files to Selenium; `Hooks` creates and closes the shared browser per scenario.
+- `Task1` and `Task2` exercise the feedback and fitness challenge flows end to end through page objects. `FitnessChallengeSteps` binds the first seven fitness feature files to Selenium; `Hooks` creates and closes the shared browser per scenario.
